@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Kim Myers"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -22,21 +22,21 @@ The completed exercise is due on Tuesday, January 14th at 1:00 pm.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: I have done research and internships that have required data analytics in Excel.  I have also taken two college-level courses in Python which have focused somewhat on data analytics.  In one of the classes, I learned how to use Git.  Lastly, I was introduced to R in my Data Analysis class at Duke. Since then, I have used it for research and my Masters Project.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: I feel confident in using Git and in my data cleaning skills.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: Maybe not apprehensive, but I'm looking forward to learning new data wrangling and visualization skills.  I am a bit worried about creating a good final project.
 
 
 ## 2) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository  and that you have updated your course README file. 
 
-> Answer: 
+> Answer: https://github.com/krm75/Environmental_Data_Analytics_2020
 
 
