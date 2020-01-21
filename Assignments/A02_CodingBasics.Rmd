@@ -55,9 +55,9 @@ mean(s) > median(s) # if mean is greater than median, return true
 8. Label the columns of your data frame with informative titles.
 
 ```{r}
-names <- c('Abby', "Bobby", "Connor", "Diana")
-scores <- c(92, 88, 49, 95)
-pass <- c(TRUE, TRUE, FALSE, TRUE)
+names <- c('Abby', "Bobby", "Connor", "Diana") # character
+scores <- c(92, 88, 49, 95) # numeric
+pass <- c(TRUE, TRUE, FALSE, TRUE) #logical
 
 exam_results <- data.frame(names, scores, pass)
 names(exam_results) <- c('StudentNames', 'ExamScores', 'Pass')
@@ -81,20 +81,14 @@ passgrade <- function(x) {
   }
 }
 
-passgrade(exam_results[1,2])
-passgrade(exam_results[2,2])
-passgrade(exam_results[3,2])
-passgrade(exam_results[4,2])
+passgrade(scores) # if and else statement only runs first item
 
-recipe6 <- function(x){
-  ifelse(x<50, return('Fail'), return('Pass'))
-  
-}
 
-recipe6(exam_results$ExamScores)
+ifelse(scores<50, 'Fail', 'Pass') # ifelse statement runs correctly
+
 
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer: Both worked for me?
+> Answer: The ifelse statement worked while the if and else statement did not because the former runs through each component of a vector while the latter only looks at the first component.
