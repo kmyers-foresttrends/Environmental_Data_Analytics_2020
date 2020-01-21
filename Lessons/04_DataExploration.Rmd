@@ -67,10 +67,10 @@ You may also import datasets from the Files tab, but this is not recommended sin
 USGS.flow.data <- read.csv("./Data/Raw/USGS_Site02085000_Flow_Raw.csv")
 
 # What happens if we don't assign a name to our imported dataset?
-#read.csv("../Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+#read.csv("./Data/Raw/USGS_Site02085000_Flow_Raw.csv") # data set not in env
 
 # Another option is to choose with your browser
-# read.csv(file.choose())
+# read.csv(file.choose()) #nav to file explorer
 
 # To import .txt files, use read.table rather than read.csv
 #read.table()
@@ -132,7 +132,7 @@ Question: What types of research questions might make it favorable to remove NAs
 > Answer: 
 
 ```{r}
-USGS.flow.data.complete <- na.omit(USGS.flow.data)
+USGS.flow.data.complete <- na.omit(USGS.flow.data) # removes rows with NAs
 dim(USGS.flow.data)
 dim(USGS.flow.data.complete)
 
@@ -168,11 +168,11 @@ help(as.Date)
 # (code must be uncommented)
 today <- Sys.Date()
 format(today, format = "%B")
-#format(today, format = "")
-#format(today, format = "")
-#format(today, format = "")
+format(today, format = "%Y")
+format(today, format = "%A")
+format(today, format = "%a")
 
-USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") 
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") # format indicates order in original dataset
 ```
 
 Note that for every date prior to 1969, R has assigned the date in the 2000s rather than the 1900s. This can be fixed with an `ifelse` statement inside a function. Run through the code below and write what is happening in the comment above each line.
