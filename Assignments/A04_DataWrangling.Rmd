@@ -24,9 +24,31 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 2. Explore the dimensions, column names, and structure of the datasets. 
 
 ```{r, message = FALSE}
-#1
+#1 
+getwd()
+library('tidyverse')
+library('lubridate')
+
+o3_2018 <- read.csv("../Data/Raw/EPAair_O3_NC2018_raw.csv")
+o3_2019 <- read.csv("../Data/Raw/EPAair_O3_NC2019_raw.csv")
+pm25_2018 <- read.csv("../Data/Raw/EPAair_PM25_NC2018_raw.csv")
+pm25_2019 <- read.csv("../Data/Raw/EPAair_PM25_NC2019_raw.csv")
 
 #2
+dim(o3_2018)
+dim(o3_2019)
+dim(pm25_2018)
+dim(pm25_2019)
+colnames(o3_2018)
+colnames(o3_2019)
+colnames(pm25_2018)
+colnames(pm25_2019)
+str(o3_2018)
+str(o3_2019)
+str(pm25_2018)
+str(pm25_2019)
+
+
 ```
 
 ## Wrangle individual datasets to create processed files.
@@ -37,13 +59,27 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 
 ```{r}
 #3
-
+o3_2018$Date <- as.Date(o3_2018$Date, format = "%m/%d/%Y")
+o3_2019$Date <- as.Date(o3_2019$Date, format = "%m/%d/%Y")
+pm25_2018$Date <- as.Date(pm25_2018$Date, format = "%m/%d/%Y")
+pm25_2019$Date <- as.Date(pm25_2019$Date, format = "%m/%d/%Y")
 #4
-
+o2018 <- select(o3_2018, Date, DAILY_AQI_VALUE, Site.Name,
+          AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+o2019 <- select(o3_2019, Date, DAILY_AQI_VALUE, Site.Name,
+          AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+pm2018 <- select(pm25_2018, Date, DAILY_AQI_VALUE, Site.Name,
+          AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+pm2019 <- select(pm25_2019, Date, DAILY_AQI_VALUE, Site.Name,
+          AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 #5
-
+pm2018$AQS_PARAMETER_DESC <- "PM2.5"
+pm2019$AQS_PARAMETER_DESC <- "PM2.5"
 #6
-
+write.csv(o2018, row.names = F, file = "../Data/Processed/EPAair_O3_NC2018_processed.csv")
+write.csv(o2019, row.names = F, file = "../Data/Processed/EPAair_O3_NC2019_processed.csv")
+write.csv(pm2018, row.names = F, file = "../Data/Processed/EPAair_PM25_NC2018_processed.csv")
+write.csv(pm2019, row.names = F, file = "../Data/Processed/EPAair_PM25_NC2019_processed.csv")
 ```
 
 

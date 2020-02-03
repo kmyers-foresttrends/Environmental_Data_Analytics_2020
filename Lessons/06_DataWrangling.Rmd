@@ -62,14 +62,14 @@ vignette("dplyr")
 Filtering allows us to choose certain rows (observations) in our dataset.
 
 Here are the relevant commands used in the `filter` function. Add some notes to designate what these commands mean. 
-`==`
-`!=`
-`<`
-`<=`
-`>`
-`>=`
-`&`
-`|`
+`==` equals
+`!=`does not equal
+`<` less than
+`<=` less than or equal to
+`>` greater than
+`>=` greater than or equal to
+`&` and 
+`|` or
 
 ```{r}
 class(NTL.phys.data$lakeid)
@@ -110,15 +110,16 @@ NTL.phys.data.JunethruOctober4 <- filter(NTL.phys.data, daynum %in% c(152:304))
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
 class(NTL.phys.data$year4)
+NTL.1999 <- filter(NTL.phys.data, year4 == 1999) #condition for integer
 
 # Exercise: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
-
+NTL.1990to1999 <- filter(NTL.phys.data, lakename == "Tuesday Lake" & year4 <= 1999 & year4 >= 1990)
 
 ```
 Question: Why don't we filter using row numbers?
 
-> Answer: 
+> Answer: rows might not be ordered by years, would also take longer to index whichever rows you want
 
 ### Arrange
 
@@ -131,7 +132,7 @@ NTL.phys.data.depth.descending <- arrange(NTL.phys.data, desc(depth))
 # Exercise: 
 # Arrange NTL.phys.data by temperature, in descending order. 
 # Which dates, lakes, and depths have the highest temperatures?
-
+NTL.temp <- arrange(NTL.phys.data, desc(temperature_C)) #NAs will always go to the bottom
 
 ```
 ### Select
@@ -140,7 +141,7 @@ Selecting allows us to choose certain columns (variables) in our dataset.
 
 ```{r}
 NTL.phys.data.temps <- select(NTL.phys.data, lakename, sampledate:temperature_C)
-
+# selects columns
 ```
 ### Mutate
 
@@ -158,7 +159,8 @@ A package that makes coercing date much easier is `lubridate`. A guide to the pa
 
 ```{r}
 # add a month column to the dataset
-NTL.phys.data.PeterPaul1 <- mutate(NTL.phys.data.PeterPaul1, month = month(sampledate)) 
+NTL.phys.data.PeterPaul1 <- mutate(NTL.phys.data.PeterPaul1, month = month(as.Date(sampledate, format = "%m/%d/%y")))
+class(NTL.phys.data.PeterPaul1$sampledate)
 
 # reorder columns to put month with the rest of the date variables
 NTL.phys.data.PeterPaul1 <- select(NTL.phys.data.PeterPaul1, lakeid:daynum, month, sampledate:comments)
