@@ -120,13 +120,23 @@ print(PMplot.line)
 
 # 1. 
 # Plot surface temperatures by day of  year. 
+temp_day <- ggplot(subset(PeterPaul.chem.nutrients, depth==0), aes(x=daynum, y=temperature_C)) +
+  geom_point() + facet_wrap(vars(Site.Name), nrow = 3
+  
+print(temp_day)
 # Color your points by year, and facet by lake in two rows.
+temp_dayyear <- ggplot(subset(PeterPaul.chem.nutrients, depth==0)) +
+  geom_point(aes(x=daynum, y=temperature_C, color = as.factor(year4))) + facet_wrap(vars(lakename), nrow = 2)
+  
+print(temp_dayyear)
 
 
 #2. 
 # Plot temperature by date. Color your points by depth.
 # Change the size of your point to 0.5
-
+temp_date <- ggplot(PeterPaul.chem.nutrients) + 
+  geom_point(aes(x=sampledate, y=temperature_C, color=depth), size=0.5)
+print(temp_date)
 
 ```
 ### Plotting the relationship between two continuous variables: Scatterplot
@@ -135,7 +145,7 @@ print(PMplot.line)
 # Scatterplot
 lightvsDO <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = irradianceWater, y = dissolvedOxygen)) +
-  geom_point()
+  geom_point() 
 print(lightvsDO)
 
 # Adjust axes
@@ -148,8 +158,8 @@ print(lightvsDOfixed)
 
 # Depth in the fields of limnology and oceanography is on a reverse scale
 tempvsdepth <- 
-  ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth)) +
-  #ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth, color = daynum)) +
+  #ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth)) +
+  ggplot(PeterPaul.chem.nutrients, aes(x = temperature_C, y = depth, color = daynum)) +
   geom_point() +
   scale_y_reverse()
 print(tempvsdepth)
@@ -157,7 +167,7 @@ print(tempvsdepth)
 NvsP <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth)) +
   geom_point() +
-  geom_smooth(method = lm) +
+  geom_smooth(method = lm) + # se = False removes confidence interval
   geom_abline(aes(slope = 16, intercept = 0))
 print(NvsP)
 
@@ -219,7 +229,7 @@ print(Nutrientplot7)
 # Ridgeline plot
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(y = nutrient, x = concentration)) +
-  geom_density_ridges(aes(fill = lakename), alpha = 0.5) #
+  geom_density_ridges(aes(fill = lakename), alpha = 0.5) # alpha is transparency indicator, specify outside of aesthetics
 print(Nutrientplot6)
 
 # Exercise: Plot distributions of AQI values for EPAair

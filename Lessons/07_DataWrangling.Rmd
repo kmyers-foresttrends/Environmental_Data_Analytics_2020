@@ -20,8 +20,8 @@ getwd()
 library(plyr)
 library(tidyverse)
 library(lubridate)
-NTL.phys.data.PeterPaul <- read.csv("./Data/Processed/NTL-LTER_Lake_ChemistryPhysics_PeterPaul_Processed.csv")
-NTL.nutrient.data <- read.csv("./Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
+NTL.phys.data.PeterPaul <- read.csv("../Data/Processed/NTL-LTER_Lake_ChemistryPhysics_PeterPaul_Processed.csv")
+NTL.nutrient.data <- read.csv("../Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv")
 ```
 
 ## Review of basic exploration and wrangling
@@ -59,7 +59,7 @@ NTL.nutrient.data.PeterPaul <-
 
 # Save processed nutrient file
 write.csv(NTL.nutrient.data.PeterPaul, row.names = FALSE, 
-          file = "./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
+          file = "../Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
 
 # Remove columns that are not of interest for analysis
 NTL.phys.data.PeterPaul.subset <- select(NTL.phys.data.PeterPaul, 
@@ -91,12 +91,11 @@ NTL.nutrient.data.PeterPaul.gathered <- subset(NTL.nutrient.data.PeterPaul.gathe
 count(NTL.nutrient.data.PeterPaul.gathered, nutrient)
 
 write.csv(NTL.nutrient.data.PeterPaul.gathered, row.names = FALSE, 
-          file = "./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv")
+          file = "../Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv")
 
 # Spread nutrient data into separate columns
 NTL.nutrient.data.PeterPaul.spread <- spread(NTL.nutrient.data.PeterPaul.gathered, nutrient, concentration)
 
-# Split components of cells into multiple columns
 # Opposite of 'separate' is 'unite'
 NTL.nutrient.data.PeterPaul.dates <- separate(NTL.nutrient.data.PeterPaul.subset, sampledate, c("Y", "m", "d"))
 
@@ -124,7 +123,7 @@ Let's say we want to generate a new dataset that contains all possible physical 
 NTL.phys.nutrient.data.PeterPaul <- full_join(NTL.phys.data.PeterPaul.subset, NTL.nutrient.data.PeterPaul.subset)
 
 write.csv(NTL.phys.nutrient.data.PeterPaul, row.names = FALSE, 
-          file ="./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
+          file ="../Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
 
 ```
 
@@ -133,9 +132,9 @@ write.csv(NTL.phys.nutrient.data.PeterPaul, row.names = FALSE,
 The Niwot Ridge litter dataset, when downloaded from NEON, comes packaged with each month as a different .csv file. If we want to analyze the dataset as a single data frame, we need to combine each of these files. 
 
 ```{r}
-Litter.June2016 <- read.csv("./Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2016-06_raw.csv")
-Litter.July2016 <- read.csv("./Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2016-07_raw.csv")
-Litter.August2016 <- read.csv("./Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2016-08_raw.csv")
+Litter.June2016 <- read.csv("../Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2016-06_raw.csv")
+Litter.July2016 <- read.csv("../Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2016-07_raw.csv")
+Litter.August2016 <- read.csv("../Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2016-08_raw.csv")
 
 Litter.2019 <- rbind(Litter.June2016, Litter.July2016, Litter.August2016)
 ```
@@ -143,7 +142,7 @@ Litter.2019 <- rbind(Litter.June2016, Litter.July2016, Litter.August2016)
 However, there are 20 months in this dataset, so importing all these files individually would be tedious to code. Here is a more efficient way to import and combine all files.
 
 ```{r}
-LitterFiles = list.files(path = "./Data/Raw/NIWO_Litter/", pattern="*.csv", full.names=TRUE)
+LitterFiles = list.files(path = "../Data/Raw/NIWO_Litter/", pattern="*.csv", full.names=TRUE)
 LitterFiles
 
 Litter <- LitterFiles %>%
@@ -152,7 +151,7 @@ Litter <- LitterFiles %>%
 
 We also have information about individual traps, including the location and type of landcover. Let's join these two datasets. Note that "siteID", "plotID" and "trapID" exist in both datasets, and we can join them by these conditions. Notice the dimensions of the final dataset.
 ```{r}
-Trap <- read.csv("./Data/Raw/NEON_NIWO_Litter_trapdata_raw.csv")
+Trap <- read.csv("../Data/Raw/NEON_NIWO_Litter_trapdata_raw.csv")
 LitterTrap <- left_join(Litter, Trap, by = c("siteID", "plotID", "trapID"))
 
 dim(Litter)
@@ -163,7 +162,7 @@ LitterTrap <- LitterTrap %>%
   select(plotID:trapID, collectDate, functionalGroup:qaDryMass, subplotID:geodeticDatum)
 
 write.csv(LitterTrap, row.names = FALSE, 
-          file ="./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
+          file ="../Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 ```
 
 ## Split-Apply-Combine
@@ -184,7 +183,7 @@ NTL.PeterPaul.summaries <-
             sdTP = sd(tp_ug))
 
 write.csv(NTL.PeterPaul.summaries, row.names = FALSE, 
-          file ="./Data/Processed/NTL-LTER_Lake_Summaries_PeterPaul_Processed.csv")
+          file ="../Data/Processed/NTL-LTER_Lake_Summaries_PeterPaul_Processed.csv")
 
 ```
 
