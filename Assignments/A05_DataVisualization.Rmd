@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: "Kim Myers"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -29,17 +29,27 @@ The completed exercise is due on Tuesday, February 11 at 1:00 pm.
 
 ```{r}
 #1
+getwd()
+library(tidyverse)
+library(cowplot)
 
-
+peterpaul <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
+niwot <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 #2
-
-
+str(peterpaul)
+str(niwot)
+peterpaul$sampledate <- as.Date(peterpaul$sampledate, format="%Y-%m-%d")
+niwot$collectDate <- as.Date(niwot$collectDate, format = "%Y-%m-%d")
 ```
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
+mytheme <- theme_light(base_size = 10) +
+  theme(axis.text = element_text(color = "white"), 
+        legend.position = "bottomright")
 
+theme_set(mytheme)
 
 ```
 
@@ -49,9 +59,11 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 4. [NTL-LTER] Plot total phosphorus by phosphate, with separate aesthetics for Peter and Paul lakes. Add a line of best fit and color it black. Adjust your axes to hide extreme values.
 
 ```{r}
+phos <- ggplot(peterpaul, aes(x=po4, y=tp_ug)) + geom_point(aes(color=lakename)) +  geom_smooth(method = lm, se = FALSE,color="black") + xlim(0,50)
 
+print(phos)
 
-
+# VALUES NOT APPEARING ON AXES
 ```
 
 
