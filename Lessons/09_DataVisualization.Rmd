@@ -102,11 +102,11 @@ O3plot7 <- ggplot(EPAair, aes(x = Date, y = Ozone)) +
   geom_text(x = as.Date("2020-01-01"), y = 95, label = "moderate", hjust = 1, fontface = "bold") +
   geom_text(x = as.Date("2020-01-01"), y = 120, label = "unhealthy (sensitive groups)", hjust = 1, fontface = "bold") +
   scale_x_date(limits = as.Date(c("2018-01-01", "2019-12-31")), 
-    date_breaks = "2 months", date_labels = "%b %y") +
-  ylab(expression("O"[3]* " AQI Value")) +
+    date_breaks = "2 months", date_labels = "%b %y") + # b is 3-letter month
+  ylab(expression("O"[3]* " AQI Value")) + # [] specifies subscript
   theme(axis.text.x = element_text(angle = 45,  hjust = 1))
 print(O3plot7)  
-
+# hjust = 1 means right justify
 ```
 
 ### Color palettes
@@ -175,13 +175,15 @@ print(NvsP)
 NvsP2 <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth, shape = lakename)) +
   geom_point(alpha = 0.7, size = 2.5) +
-  #labs() + # change your legend labels here
+  labs(y = "N "[mu]"g per liter", x = "P ug per liter", color = "Depth (m)", shape = "Lake Name") + # change your legend labels here
   scale_shape_manual(values = c(15, 17)) +
   #scale_color_distiller(palette = "Blues", direction = 1) + # use scale_color_brewer for discrete variables
-  scale_color_viridis(option = "magma", direction = -1) +
+  scale_color_viridis(option = "inferno", direction = -1, end = 0.9) +
   theme(legend.position = "right", 
         legend.text = element_text(size = 12), legend.title = element_text(size = 12))
 print(NvsP2)
+
+# in scale_color, can add end = to specify what range of palette you want
 
 # change your y axis label to list concentration in micrograms per liter
 # remove your x axis label
@@ -189,13 +191,13 @@ print(NvsP2)
 # try out the different color palette options and choose one (or edit)
 Nutrientplot <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration, color = nutrient)) +
-  geom_boxplot() +
+  geom_boxplot() + labs(y="N ug/liter") +
 # place your additional edits here
   scale_y_continuous(expand = c(0, 0)) +
   #scale_color_brewer(palette = "YlGnBu") +
   #scale_color_manual(values = c("#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#0c2c84")) +
   #scale_color_viridis(discrete = TRUE, end = 0.8) +
-  theme(legend.position = "right")
+  scale_color_discrete(name = "Nutrients", labels = c("ammonia","nitrate","phosphate","nitrogen", "phosphorus")) + theme(legend.position = "bottom")
 print(Nutrientplot)
 ```
 

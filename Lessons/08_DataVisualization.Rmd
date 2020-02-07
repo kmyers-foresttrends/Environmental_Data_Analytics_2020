@@ -231,7 +231,7 @@ Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(y = nutrient, x = concentration)) +
   geom_density_ridges(aes(fill = lakename), alpha = 0.5) # alpha is transparency indicator, specify outside of aesthetics
 print(Nutrientplot6)
-
+summary(PeterPaul.chem.nutrients.gathered$lakename)
 # Exercise: Plot distributions of AQI values for EPAair
 
 # 1. 
