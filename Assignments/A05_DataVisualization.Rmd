@@ -33,8 +33,8 @@ getwd()
 library(tidyverse)
 library(cowplot)
 
-peterpaul <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
-niwot <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
+peterpaul <- read.csv("../Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
+niwot <- read.csv("../Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 #2
 str(peterpaul)
 str(niwot)
@@ -88,7 +88,7 @@ print(tnitro)
 legend <- get_legend(temp + theme(legend.position="top",legend.direction = "vertical"))
 ##create gridded figure
 nptemp <- plot_grid(temp, tphos, tnitro, nrow = 3, align = 'h')
-print(nptemp)
+#print(nptemp)
 ##add common legend to grid
 nptemp_legend <- plot_grid(nptemp, legend, ncol = 2, rel_widths = c(2, .6))
 print(nptemp_legend)
@@ -107,18 +107,33 @@ Question: What do you observe about the variables of interest over seasons and b
 needles <- 
   ggplot(subset(niwot, functionalGroup == "Needles"),
          aes(x=collectDate,y=dryMass,color=nlcdClass,
-        shape=nlcdClass))+ geom_point() + labs(x=" ", 
-        y="Dry Mass (g)", color="", shape="")  +
+        shape=nlcdClass)) + 
+        geom_point() + 
+        labs(x=" ",y="Dry Mass (g)", color="", shape="")+
         theme(legend.direction = "vertical", 
-        legend.position = "right") +
-        scale_color_manual(values=c("darkred", "orange","gold"), 
+        legend.position = "right", 
+        axis.text.x=element_text(angle=45, hjust=1)) +
+        scale_color_manual(values=c("darkred", "navy","gold"), 
         labels = c("Evergreen Forest","Grassland","Scrub")) +
         scale_shape_manual(values=c(17, 18,19), 
-        labels = c("Evergreen Forest","Grassland","Scrub"))
+        labels = c("Evergreen Forest","Grassland","Scrub")) +
+        scale_x_date(date_breaks = "6 months", date_labels =  "%b %Y") 
 print(needles)
 
 #7
-needles_nlcd <- ggplot(subset(niwot, functionalGroup == "Needles"))+geom_point(aes(x=collectDate,y=dryMass))+facet_wrap(vars(nlcdClass), nrow = 3)
+nlcd.labs <- c("Evergreen Forest","Grassland","Scrub")
+names(nlcd.labs) <- c("evergreenForest","grasslandHerbaceous","shrubScrub")
+
+needles_nlcd <- 
+  ggplot(subset(niwot, functionalGroup == "Needles")) +
+  geom_point(aes(x=collectDate,y=dryMass,color=nlcdClass, shape=nlcdClass)) +
+  labs(x=" ",y="Dry Mass (g)", color="", shape="") +
+  facet_wrap(vars(nlcdClass), nrow = 3,
+      labeller = labeller(nlcdClass = nlcd.labs)) +
+  scale_x_date(date_breaks = "4 months", date_labels =  "%b %Y") +
+  theme(legend.position = "none", axis.text.x = element_text(angle=45, hjust=1)) +
+  scale_color_manual(values=c("darkred", "navy","gold")) +
+  scale_shape_manual(values=c(17, 18,19))
 print(needles_nlcd)
 
 ```

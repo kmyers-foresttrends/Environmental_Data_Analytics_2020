@@ -63,28 +63,28 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 ```{r}
 
 summary(EPAair$Ozone)
-EPAair.subsample <- sample_n(EPAair, 5000)
+EPAair.subsample <- sample_n(EPAair, 5000) # shapiro test can only take 5000 samples
 
 # Evaluate assumption of normal distribution
-shapiro.test((EPAair.subsample$Ozone))
+shapiro.test((EPAair.subsample$Ozone)) # null hypothesis = normality
 ggplot(EPAair, aes(x = Ozone)) +
-  geom_histogram() 
-qqnorm(EPAair$Ozone); qqline(EPAair$Ozone)
+  geom_histogram()  # distribution is right-skewed
+qqnorm(EPAair$Ozone); qqline(EPAair$Ozone) # colon means continue code
 
-O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less")
-O3.onesample
+O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less") # mu is null distribution mean, no alternative = two-tailed t-test, but we expect mu < 50, so we have a 'less than' alternative hypothesis
+O3.onesample # tests null hypothesis that mean of groups = specific value
 
 Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
-  #geom_density(stat = "count", fill = "gray") +
-  geom_density(fill = "gray") +
+  geom_density(stat = "count", fill = "gray") +
+  #geom_density(fill = "gray") +
   geom_vline(xintercept = 50, color = "#238b45", lty = 2, size = 0.9) +
-  scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
-print(Ozone.plot)
+  scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) # starts axes at 0
+print(Ozone.plot) # shows how distribution of ozone data lies to the left of 50
 ```
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the resarch question.
 
-> 
+> The results of the one-way t-test show that the ozone levels from the EPA air data are within a 'good' range (less than 50).  This is because the distribution of the data was significantly less than a mean value of 50 (t-test, t=-57.98, p<0.0001).
 
 ### Two-sample t-test
 The two-sample *t* test is used to test the hypothesis that the mean of two samples is equivalent. Unlike the one-sample tests, a two-sample test requires a second assumption that the variance of the two groups is equivalent. Are Ozone levels different between 2018 and 2019?
@@ -95,18 +95,19 @@ shapiro.test(EPAair$Ozone[EPAair$Year == 2019])
 var.test(EPAair$Ozone ~ EPAair$Year)
 
 ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
-  geom_freqpoly()
+  geom_freqpoly() # this is good for exploratory analysis
 
 # Format as a t-test
 O3.twosample <- t.test(EPAair$Ozone ~ EPAair$Year)
 O3.twosample
-O3.twosample$p.value
+O3.twosample$p.value # null hypothesis rejected because sample size is high
 
 # Format as a GLM
 O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
 summary(O3.twosample2)
 
 plot(O3.twosample2)
+
 ```
 
 ### Non-parametric equivalent of t-test: Wilcoxon test
@@ -129,7 +130,16 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 3. geom_violin of ozone divided by year, with the 0.5 quantile marked as a horizontal line. Add letters representing a significant difference between 2018 and 2019. 
 
 ```{r}
+#
+o3yr <- ggplot(EPAair, aes(y=Ozone, shape=as.factor(Year), fill=as.factor(Year))) +
+  geom_density(color=NA, alpha=0.5) +
+  scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
+o3yr
 
+o3box <- ggplot(EPAair) +
+  geom_boxplot(aes(y=Ozone, x=as.factor(Year), color=as.factor(Year))) #+
+  #stat_summary()
+o3box
 
 ```
 
