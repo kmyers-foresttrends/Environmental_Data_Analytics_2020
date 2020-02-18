@@ -17,7 +17,7 @@ editor_options:
 ```{r, message = FALSE}
 getwd()
 library(tidyverse)
-options(scipen = 4)
+options(scipen = 4) # displays 4 digits instead of exponential notation, applies to ggplot and stat test results
 
 PeterPaul.chem.nutrients <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
 
@@ -49,14 +49,18 @@ For the NTL-LTER dataset, can we predict irradiance (light level) from depth?
 irradiance.regression <- lm(PeterPaul.chem.nutrients$irradianceWater ~ PeterPaul.chem.nutrients$depth)
 # another way to format the lm function
 irradiance.regression <- lm(data = PeterPaul.chem.nutrients, irradianceWater ~ depth)
-summary(irradiance.regression)
+summary(irradiance.regression) # for every increase in m depth, there is -95 radiance
+# adjusted R-squared
 
 # Correlation
 cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$depth)
 ```
 Question: How would you report the results of this test (overall findings and report of statistical output)?
 
->  
+> With increasing depth, irradiance decreases.  
+> Depth accounts for approximately 30% of irradiance decrease.  
+> Irradiance decreases significantly with increasing depth (linear regression, R2 = 0.31, df=15,449, p < 0.0001).
+> Include coefficients in table or text, not in parentheses.
 
 So, we see there is a significant negative correlation between irradiance and depth (lower light levels at greater depths), and that this model explains about 31 % of the total variance in irradiance. Let's visualize this relationship and the model itself. 
 
@@ -73,7 +77,9 @@ An exploratory option to visualize the model fit is to use the function `plot`. 
 ```{r, fig.height = 3, fig.width = 4}
 par(mfrow = c(2,2), mar=c(1,1,1,1))
 plot(irradiance.regression)
-par(mfrow = c(1,1))
+par(mfrow = c(1,1)) # sets the plot window back to 1,1
+# top left - want horizontal and no clustering, top right - data should fall along line
+# bottom left - same as top left, bottom right = shows outliers
 ```
 
 The option best suited for communicating findings is to plot the explanatory and response variables as a scatterplot. 
@@ -91,9 +97,9 @@ Given the distribution of irradiance values, we don't have a linear relationship
 
 ```{r, fig.height = 3, fig.width = 4}
 PeterPaul.chem.nutrients <- filter(PeterPaul.chem.nutrients, 
-                                   irradianceWater != 0 & irradianceWater < 5000)
+                                   irradianceWater != 0 & irradianceWater < 5000) # remove 0s bc can't log transform
 irradiance.regression2 <- lm(data = PeterPaul.chem.nutrients, log(irradianceWater) ~ depth)
-summary(irradiance.regression2)
+summary(irradiance.regression2) # log transform to simulate linear relationship
 
 par(mfrow = c(2,2), mar=c(1,1,1,1))
 plot(irradiance.regression2)
@@ -107,16 +113,22 @@ irradiancebydepth2 <-
   geom_point() 
 print(irradiancebydepth2) 
 
-# SE can also be removed
+# SE can also be removed, can't see in above plot because confidence is so high
 irradiancebydepth2 <- 
     ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
     geom_point() +
     scale_y_log10() +
-    geom_smooth(method = 'lm', se = FALSE, color = "black")
+    geom_smooth(method = 'lm', se = FALSE, color = "black") # default is loess model in method
 print(irradiancebydepth2)
 
 # Make the graph attractive
-
+irradiancebydepth2 <- 
+    ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
+    geom_point(alpha=0.5,pch=16,color="dodgerblue") +
+    scale_y_log10() +
+    geom_smooth(method = 'lm', se = FALSE, color = "red") +
+    labs(x="Depth (m)", y="Water Irradiance (units)")
+print(irradiancebydepth2)
 ```
 
 ## Non-parametric equivalent: Spearman's Rho
@@ -124,7 +136,7 @@ As with the t-test and ANOVA, there is a nonparametric variant to the linear reg
 
 ``` {r}
 cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$depth, 
-         method = "spearman", exact = FALSE)
+         method = "spearman", exact = FALSE) # no R-squared value
 ```
 
 ## Multiple Regression
@@ -158,7 +170,7 @@ PeterPaulnutrients <-
   select(tn_ug:po4) %>%
   na.omit()
 PeterPaulCorr <- cor(PeterPaulnutrients)
-corrplot(PeterPaulCorr, method = "ellipse")
+corrplot(PeterPaulCorr, method = "ellipse") # color is strength of correlation, ellipse corresponds to color
 corrplot.mixed(PeterPaulCorr, upper = "ellipse")
 ```
 
@@ -177,6 +189,8 @@ TPAIC <- lm(data = Paul.naomit, tp_ug ~ depth + dissolvedOxygen +
               temperature_C + tn_ug + po4)
 step(TPAIC)
 TPmodel <- lm(data = Paul.naomit, tp_ug ~ dissolvedOxygen + temperature_C + tn_ug)
-summary(TPmodel)
+summary(TPmodel) # n is not a significant predictor, but does account for significant amount of variance
 
 ```
+
+> Our results reveal that dissolved oxygen, temperature, and nitrogen concentration can predict 26% of the concentration of phosphorus in Paul Lake (linear regression, R-squared=0.26, p < 0.0001).
