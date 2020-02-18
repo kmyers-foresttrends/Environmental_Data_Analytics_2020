@@ -46,7 +46,7 @@ niwot$collectDate <- as.Date(niwot$collectDate, format = "%Y-%m-%d")
 
 ```{r}
 mytheme <- theme_bw(base_size = 10) +
-  theme(axis.text = element_text(color = "black"), 
+  theme(axis.text = element_text(color = "dark gray"), 
         legend.position = "bottom")
 
 theme_set(mytheme)

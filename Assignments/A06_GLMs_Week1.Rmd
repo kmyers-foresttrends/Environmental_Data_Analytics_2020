@@ -1,6 +1,6 @@
 ---
 title: "Assignment 6: GLMs week 1 (t-test and ANOVA)"
-author: "Student Name"
+author: "Kim Myers"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -30,9 +30,18 @@ The completed exercise is due on Tuesday, February 18 at 1:00 pm.
 ```{r, message = FALSE}
 #1
 
+getwd()
+library(tidyverse)
+library(cowplot)
+library(agricolae)
+
+peterpaul <- read.csv("../Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
 
 #2
 
+peterpaul$sampledate <- as.Date(peterpaul$sampledate, format = "%Y-%m-%d")
+
+head(peterpaul$sampledate)
 ```
 
 
@@ -40,7 +49,12 @@ The completed exercise is due on Tuesday, February 18 at 1:00 pm.
 
 3. Wrangle your dataset so that it contains only surface depths and only the years 1993-1996, inclusive. Set month as a factor.
 ```{r}
+#3
 
+dpth9396 <- peterpaul %>%
+  filter(depth_id == 1&year4>1993&year4<1997)
+
+dpth9396$month <- as.factor(dpth9396$month)
 
 ```
 
@@ -50,18 +64,28 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 
 4. Which application of the GLM will you use (t-test, one-way ANOVA, two-way ANOVA with main effects, or two-way ANOVA with interaction effects)? Justify your choice.
 
-> Answer: 
+> Answer: I will conduct a two-way ANOVA with interaction effects.  I will see if there are significant differences in P and N both between lakes and between lakes in different seasons.
 
 5. Run your test for TN. Include examination of groupings and consider interaction effects, if relevant.
 
 6. Run your test for TP. Include examination of groupings and consider interaction effects, if relevant.
 
 ```{r}
-#5
+#5 - nitrogen
+aovn <- aov(tn_ug~lakename*month, data=dpth9396)
+summary(aovn)
+TukeyHSD(aovn)
+nhsd <- HSD.test(aovn, c("lakename","month"),group=T)
+nhsdl <- HSD.test(aovn, "lakename",group=T)
+print(nhsdl) # c,abc,c,abc,c,ab,bc,a,abc,abc
 
-
-#6
-
+#6 - phosphorus
+aovp <- aov(tp_ug~lakename*month, data=dpth9396)
+summary(aovp)
+TukeyHSD(aovp)
+phsd <- HSD.test(aovp, c("lakename","month"),group=T)
+phsdl <- nhsdl <- HSD.test(aovp, "lakename",group=T)
+print(phsdl) # bc,bc,c,abc,c,a,c,ab,c,abc
 
 ```
 
@@ -70,10 +94,36 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 8. Combine your plots with cowplot, with a common legend at the top and the two graphs stacked vertically. Your x axes should be formatted with the same breaks, such that you can remove the title and text of the top legend and retain just the bottom legend. 
 
 ```{r}
+library(cowplot)
+mytheme <- theme_light(base_size = 12) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+
+theme_set(mytheme)
+
 #7
+n <- ggplot(dpth9396) + geom_boxplot(aes(x=month, y=tn_ug, fill=lakename),size=0.2) + 
+  labs(x="",y=expression("N " *mu~ "g liter"^-1),fill="") +
+  scale_color_brewer(palette = "Dark2") +
+  stat_summary(aes(x=month,y=tn_ug,fill=lakename),geom = "text", fun.y = max, vjust = -1, 
+  size = 3.5,label = c("c","abc","c","abc","c","ab","bc","a","abc","abc"),position=position_dodge(width=0.75)) +
+  scale_fill_manual(values=c("navy","gold"),labels=c("Paul Lake (b)","Peter Lake (a)"))
+print(n)
+  
+
+p <- ggplot(dpth9396) + geom_boxplot(aes(x=month, y=tp_ug, fill=lakename), size=0.2) +
+  labs(x="Month",y=expression("P " *mu~ "g liter"^-1),fill="") +
+  scale_color_brewer(palette = "Dark2") +
+  theme(legend.position="none") +
+  stat_summary(aes(x=month,y=tp_ug,fill=lakename),geom = "text", fun.y = max, vjust = -1, 
+  size = 3.5,label = c("bc","bc","c","abc","c","a","c","ab","c","abc"),position=position_dodge(width=0.75)) +
+  scale_fill_manual(values=c("navy","gold"))
+print(p)
 
 
 #8
+np <- plot_grid(n, p, nrow = 2, align = 'h', rel_heights = c(1.25, 1))
+print(np)
 
 ```
 

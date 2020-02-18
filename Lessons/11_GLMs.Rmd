@@ -69,6 +69,7 @@ summary(Litter.Totals.anova)
 # Format ANOVA as lm
 Litter.Totals.anova2 <- lm(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova2)
+# intercept is first plot, other significance of variables relative to intercept
 
 # Checking model fit and assumptions
 # ANOVA is robust against departures from normality.
@@ -79,7 +80,7 @@ TukeyHSD(Litter.Totals.anova)
 
 # Extract groupings for pairwise relationships
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
-Litter.Totals.groups
+Litter.Totals.groups # matching letters indicate insignificant difference
 
 # Graph the results
 Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
@@ -95,7 +96,7 @@ print(Litter.Totals.plot)
 
 What information does the output give us? How might we report this information in a report?
 
-> 
+> Total litter biomass differed significantly amoung sites at the Niwot Ridge LTER (figure 1; ANOVAl F11,198 = 4.813, p<0.0001)
 
 
 ### Non-parametric equivalent of ANOVA: Kruskal-Wallis Test
@@ -122,7 +123,7 @@ A two-way ANOVA allows us to examine the effects of two categorical explanatory 
 ```{r}
 # Format as aov
 Litter.anova.2way <- aov(data = Litter, dryMass ~ functionalGroup + nlcdClass)
-summary(Litter.anova.2way)
+summary(Litter.anova.2way) # intercept is alphabetical first functional group and nlcd class
 
 # Format as lm
 Litter.anova.2way2 <- lm(data = Litter, dryMass ~ functionalGroup + nlcdClass)
@@ -140,7 +141,7 @@ The output gives test statistics for each explanatory variable as well as the in
 
 ```{r}
 # Format as aov
-Litter.anova.2way3 <- aov(data = Litter, dryMass ~ functionalGroup * nlcdClass)
+Litter.anova.2way3 <- aov(data = Litter, dryMass ~ functionalGroup * nlcdClass) # interaction syntax
 summary(Litter.anova.2way3)
 
 # Format as lm
@@ -164,7 +165,22 @@ Litter.groups
 # Edit this graph to make it more visually appealing.
 # Add letters to represent statistical groupings.
 Litter.anova.plot <- ggplot(Litter, aes(y = dryMass, x = nlcdClass, color = functionalGroup)) +
-  geom_boxplot()
+  geom_boxplot() + ylim(0,20)
+print(Litter.anova.plot)
+
+Litter.anova.plot <- ggplot(Litter, aes(y = dryMass, x = nlcdClass, color=functionalGroup)) +
+  geom_boxplot() + 
+  theme(legend.position = "none",
+        axis.text.x=element_text(angle=45, hjust=1)) +
+  ylim(0,10) +
+  facet_wrap(Litter$functionalGroup, ncol=4) +
+  labs(x="", y="Dry Mass (g)") +
+  scale_x_discrete(labels=c("Evergreen","Grassland","Scrub")) +
+  stat_summary(geom = "text", fun.y = max, vjust = 1, 
+  size = 3.5,label = c("a", "b", "abcd", "bcd", "bcd", "a", 
+                        "d", "abcd", "a", "b", "abcd", "bcd",
+                       "bcd", "a", "d", "abcd","a", "b", "abcd",
+                       "bcd", "bcd", "a", "d", "abcd"))
 print(Litter.anova.plot)
 
 ```
