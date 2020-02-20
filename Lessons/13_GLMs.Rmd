@@ -42,6 +42,7 @@ Analysis of Covariance consists of a prediction of a continuous response variabl
 Let's say we wanted to predict total nitrogen concentrations by depth and by lake. We could represent these explanatory variables as main effects (two intercepts, same slope) or as interaction effects (two intercepts and two slopes). 
 
 ```{r, fig.height = 3, fig.width = 4}
+# ancova - formulation the same as anova, just have continuous and categorical variables
 # main effects
 TNancova.main <- lm(data = PeterPaul.chem.nutrients, tn_ug ~ lakename + depth)
 summary(TNancova.main)
@@ -53,6 +54,8 @@ summary(TNancova.interaction)
 TNplot <- ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = tn_ug, color = lakename)) + 
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) +
+  labs(x="Depth (m)",y=expression(TN ~ (mu*g/L)), color="") + 
+  scale_color_manual(values = c("darkblue","lightblue")) +
   xlim(0, 10)
 print(TNplot)
 
@@ -99,14 +102,15 @@ Next, we will build a hierarchical model. We will use the package `nlme` for our
 
 
 ```{r}
-TempTest.mixed <- lme(data = NTL.summertemp,
+TempTest.mixed <- lme(data = NTL.summertemp, # lme - linear mixed effects
                      temperature_C ~ year4, 
-                     random = ~1|lakename)
-summary(TempTest.mixed)
+                     random = ~1|lakename) # 1 value may vary depending on context
+#random effect must be categorical
+summary(TempTest.mixed) # p-value rounded down to 0
 rsquared(TempTest.mixed)
 
 # Compare the random effects model with the fixed effects model
-TempTest.fixed <- gls(data = NTL.summertemp,
+TempTest.fixed <- gls(data = NTL.summertemp, # gls just generates slightly different output from glm, part of lme package
                       temperature_C ~ year4)
 summary(TempTest.fixed)
 
@@ -115,16 +119,17 @@ anova(TempTest.mixed, TempTest.fixed)
 # The p-value tells us whether those models have a significantly different fit
 
 NTL.tempmodel <-
-ggplot(NTL.summertemp, aes(x = year4, y = temperature_C, color = lakename)) +
-  geom_point() +
+ggplot(NTL.summertemp, aes(x = year4, y = temperature_C)) +
+  geom_point(aes(color=lakename)) +
   scale_color_viridis_d() +
   geom_abline(intercept = -97.72, slope = 0.06) +
+  geom_smooth(method="lm", se=FALSE) + # fixed effect line
   # make it look better
   labs(x = "", y = expression("Temperature " ( degree~C)), color = "") +
-  theme(legend.spacing.x = unit(0, "cm"))
+  theme(legend.spacing.x = unit(0, "cm")) # make labels in legend closer together
 print(NTL.tempmodel)
 ```
 
 Question: How would you interpret the collective results of your mixed effects model in the context of the study question?
 
-> ANSWER: 
+> ANSWER: From 1984 to 2016, temperature increased 0.06 degrees Celsius annually (mixed effects model, R-squared = , p-value < ).  OVer this period, surface waters in north Wisconsin lakes increased a total of 1.8 degrees.
