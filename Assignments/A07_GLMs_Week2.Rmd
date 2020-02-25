@@ -1,6 +1,6 @@
 ---
 title: "Assignment 7: GLMs week 2 (Linear Regression and beyond)"
-author: "Student Name"
+author: "Kim Myers"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -27,10 +27,19 @@ The completed exercise is due on Tuesday, February 25 at 1:00 pm.
 
 ```{r}
 #1
+getwd()
+library(tidyverse)
+library(nlme)
+library(piecewiseSEM)
 
+ntl <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv")
+neon <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 
 #2
-
+mytheme <- theme_bw(base_size=12)+
+   theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 ```
 
 
@@ -47,32 +56,47 @@ Research question: What is the best set of predictors for lake temperatures in J
 
 ```{r}
 #3
-
+ntl_filter <- ntl %>%
+  filter(daynum > 181 & daynum < 213) %>%
+  select(lakename:daynum, depth, temperature_C) %>%
+  na.omit()
 
 #4
+ntl_lm <- lm(temperature_C~year4+daynum+depth, data=ntl_filter)
+step(ntl_lm)
+summary(ntl_lm)  # am i understanding this question correctly?
 
 ```
 
 5. What is the final set of explanatory variables that predict temperature from your multiple regression? How much of the observed variance does this model explain?
 
-> Answer: 
+> Answer: Year, day, and depth all predict 74.2% of variation in temperature.
 
 6. Run an interaction effects ANCOVA to predict temperature based on depth and lakename from the same wrangled dataset.
 
 ```{r}
 #6
-
+library(agricolae)
+ntl_int <- lm(temperature_C~lakename:depth, data=ntl_filter)
+summary(ntl_int) # understanding this question?
 ```
 
 7. Is there a significant interaction between depth and lakename? How much variance in the temperature observations does this explain?
 
-> Answer: 
+> Answer: There is a significant interaction between depth and lake name which explains 76.5% of the variance in temperature.
 
 8. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
 ```{r}
 #8
-
+library(viridis)
+tdepth <- ggplot(ntl_filter,aes(y=temperature_C,x=depth,color=lakename)) +
+  geom_point(alpha=0.5) + 
+  geom_smooth(method='lm',se=FALSE,color="red") +
+  ylim(0,35) +
+  scale_color_manual(values = c("darkred", "red", "darkorange", "orange", "yellow","green","darkgreen","blue","purple")) +
+  labs(y=expression("Temperature ("*degree*"C)"), x="Depth (m)",color="")
+print(tdepth)  # have the axes assigned correctly?
 ```
 
 9. Run a mixed effects model to predict dry mass of litter. We already know that nlcdClass and functionalGroup have a significant interaction, so we will specify those two variables as fixed effects with an interaction. We also know that litter mass varies across plot ID, but we are less interested in the actual effect of the plot itself but rather in accounting for the variance among plots. Plot ID will be our random effect.
@@ -81,8 +105,10 @@ a. Build and run a mixed effects model.
 b. Check the difference between the marginal and conditional R2 of the model. 
 
 ```{r}
-
-
+library(nlme)
+#9a
+mem1 <- lme(data=neon, dryMass~nlcdClass:functionalGroup, random=~1|plotID) #getting error
+#9b
 ```
 
 b. continued... How much more variance is explained by adding the random effect to the model? 
@@ -92,8 +118,8 @@ b. continued... How much more variance is explained by adding the random effect 
 c. Run the same model without the random effect.
 d. Run an anova on the two tests. 
 ```{r}
- 
-
+ mem2 <- lme(data=neon, dryMass~nlcdClass:functionalGroup)
+aov(mem1, mem2)
 ```
 
 d. continued... Is the mixed effects model a better model than the fixed effects model? How do you know?
