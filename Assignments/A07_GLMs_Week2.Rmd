@@ -32,8 +32,8 @@ library(tidyverse)
 library(nlme)
 library(piecewiseSEM)
 
-ntl <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv")
-neon <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
+ntl <- read.csv("../Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv")
+neon <- read.csv("../Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 
 #2
 mytheme <- theme_bw(base_size=12)+
@@ -64,7 +64,8 @@ ntl_filter <- ntl %>%
 #4
 ntl_lm <- lm(temperature_C~year4+daynum+depth, data=ntl_filter)
 step(ntl_lm)
-summary(ntl_lm)  # am i understanding this question correctly?
+summary(ntl_lm)  
+#the model with year, daynum, and depth is the best-suited to predict temperature
 
 ```
 
@@ -77,13 +78,13 @@ summary(ntl_lm)  # am i understanding this question correctly?
 ```{r}
 #6
 library(agricolae)
-ntl_int <- lm(temperature_C~lakename:depth, data=ntl_filter)
-summary(ntl_int) # understanding this question?
+ntl_int <- lm(temperature_C~lakename*depth, data=ntl_filter)
+summary(ntl_int) 
 ```
 
 7. Is there a significant interaction between depth and lakename? How much variance in the temperature observations does this explain?
 
-> Answer: There is a significant interaction between depth and lake name which explains 76.5% of the variance in temperature.
+> Answer: There is a significant interaction between depth and lake name which explains 78.6% of the variance in temperature.
 
 8. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
@@ -92,11 +93,11 @@ summary(ntl_int) # understanding this question?
 library(viridis)
 tdepth <- ggplot(ntl_filter,aes(y=temperature_C,x=depth,color=lakename)) +
   geom_point(alpha=0.5) + 
-  geom_smooth(method='lm',se=FALSE,color="red") +
+  geom_smooth(method='lm',se=FALSE) + 
   ylim(0,35) +
-  scale_color_manual(values = c("darkred", "red", "darkorange", "orange", "yellow","green","darkgreen","blue","purple")) +
+  scale_color_manual(values = c("darkred", "red", "pink", "orange", "yellow","green","darkgreen","blue","purple")) +
   labs(y=expression("Temperature ("*degree*"C)"), x="Depth (m)",color="")
-print(tdepth)  # have the axes assigned correctly?
+print(tdepth)  
 ```
 
 9. Run a mixed effects model to predict dry mass of litter. We already know that nlcdClass and functionalGroup have a significant interaction, so we will specify those two variables as fixed effects with an interaction. We also know that litter mass varies across plot ID, but we are less interested in the actual effect of the plot itself but rather in accounting for the variance among plots. Plot ID will be our random effect.
@@ -106,22 +107,22 @@ b. Check the difference between the marginal and conditional R2 of the model.
 
 ```{r}
 library(nlme)
-#9a
-mem1 <- lme(data=neon, dryMass~nlcdClass:functionalGroup, random=~1|plotID) #getting error
-#9b
+mem1 <- lme(data=neon, dryMass~nlcdClass*functionalGroup, random=~1|plotID)
+
+rsquared(mem1) # marginal = 0.2465822, conditional = 0.2679023
 ```
 
 b. continued... How much more variance is explained by adding the random effect to the model? 
 
-> Answer: 2 %
+> Answer: The conditional R-squared, which looks at variance explained by random effects in addition to fixed effects, explains 2% more variance than the marginal r-squared, which represents only fixed effects.
 
 c. Run the same model without the random effect.
 d. Run an anova on the two tests. 
 ```{r}
- mem2 <- lme(data=neon, dryMass~nlcdClass:functionalGroup)
-aov(mem1, mem2)
+lm1 <- gls(data=neon, dryMass~nlcdClass*functionalGroup)
+anova(mem1, lm1)
 ```
 
 d. continued... Is the mixed effects model a better model than the fixed effects model? How do you know?
 
-> Answer: 
+> Answer: The results of the anova show that the mixed effects model is better than the fixed effects model.  This is the case because the models are significantly different (p<0.0001) and the AIC of the mixed effects model is lower than that of the fixed effects model.
