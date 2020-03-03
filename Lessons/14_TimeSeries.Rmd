@@ -233,7 +233,7 @@ print(GaringerOzone)
 # na.approx function fills in NAs with a linear interpolation
 # Spline interpolation can also be specified as an alternative
 # Piecewise constant interpolation can be done with na.aggregate
-NCAir.Garinger$Ozone <- na.approx(NCAir.Garinger$Ozone)
+NCAir.Garinger$Ozone <- na.approx(NCAir.Garinger$Ozone) # default interpolation is linear
 NCAir.Garinger$PM2.5 <- na.approx(NCAir.Garinger$PM2.5)
 
 GaringerOzone.interpolated <-
@@ -268,21 +268,22 @@ EnoDischarge.late.monthly <- EnoDischarge.late %>%
   mutate(Year = year(datetime), 
          Month = month(datetime)) %>%
   group_by(Year, Month) %>%
-  summarise(Discharge = mean(discharge.mean)) 
+  summarise(Discharge = mean(discharge.mean)) # chose mean because it reflects high variability
   
 EnoDischarge.late.monthly$Date <- as.Date(paste(EnoDischarge.late.monthly$Year, 
                                                 EnoDischarge.late.monthly$Month, 
-                                                1, sep="-"), 
+                                                1, sep="-"), # paste function synthesizes separate columns into date cells
+                                          # don't use in time series!!
                                           format = "%Y-%m-%d")
 
 # Generate time series (smk.test needs ts, not data.frame)
-EnoDischarge.late.monthly.ts <- ts(EnoDischarge.late.monthly$Discharge, frequency = 12, 
+EnoDischarge.late.monthly.ts <- ts(EnoDischarge.late.monthly$Discharge, frequency = 12, # 12-monthly
                         start = c(1985, 10, 1), end = c(2019, 12, 1))
 # Run SMK test
 EnoDischarge.late.trend <- smk.test(EnoDischarge.late.monthly.ts)
 
 # Inspect results
-EnoDischarge.late.trend
+EnoDischarge.late.trend # no significant monotonic trend
 summary(EnoDischarge.late.trend)
 
 EnoDischarge.monthly <-
@@ -294,7 +295,7 @@ print(EnoDischarge.monthly)
 
 What would we conclude based on these findings? 
 
->
+> There is no significant trend in monthly discharge on the Eno River (Seasonal Mann-Kendall Test, p>0.05). Additionally, none of the months were individually significant. (report Z and p)
  
 If a significant trend was present, we could compute a **Sen's Slope** to quantify that trend (`sens.slope` function in the trend package).
 
