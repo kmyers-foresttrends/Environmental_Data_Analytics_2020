@@ -263,7 +263,7 @@ Here is what the spatial data for this lesson looks like (Figure 4). Southeast s
 Start by reading in the basin boundaries for non-reference (i.e., notable human impact) for the Southeast Plains using `st_read()` from the sf package. Notice how you only call the .shp file here. You don't need to include all the other files that come along with the .shp file (i.e., .prj, .sbn, .shx, .sbx, .dbf, etc.).
 
 ```{r read.in.some.data}
-basins_nf_seplains_raw <- st_read(here("data", "spatial_data", "bas_nonref_SEPlains.shp"))
+basins_nf_seplains_raw <- st_read(here("Lessons","sf-lesson-20200303","data", "spatial_data", "bas_nonref_SEPlains.shp")) # read shapefile
 # note how I'm using the here package!
 ```
 
@@ -279,9 +279,9 @@ I like to always save a copy of the raw data in my R session and rename all new 
 
 ```{r activity.load.data}
 # add your code here
-gages_raw <- 
-southeast_state_bounds_raw <- 
-my_tabular_data_raw <- 
+gages_raw <- st_read(here("Lessons","sf-lesson-20200303","data","spatial_data","gagesII_9322_sept30_2011.shp"))
+southeast_state_bounds_raw <- st_read(here("Lessons","sf-lesson-20200303","data","spatial_data","southeast_state_bounds.shp"))
+my_tabular_data_raw <- read.csv(here("Lessons","sf-lesson-20200303","data","tabular_data","conterm_climate.txt"))
 
 # red warning text is telling you how the data is being parsed
 ```
@@ -304,8 +304,14 @@ Use base R commands to answer the following questions (for basins_nf_seplains_ra
 ```{r activity.check.out.data}
 
 # add your code here
-
+str(basins_nf_seplains_raw)
+colnames(basins_nf_seplains_raw)
+ncol(basins_nf_seplains_raw)
+class(basins_nf_seplains_raw)
+head(basins_nf_seplains_raw)
+attributes(basins_nf_seplains_raw) # summarizes almost everything
 # bonus, add your code here
+summary(basins_nf_seplains_raw)
 ```
 
 While not in base, you can also use glimpse() from the tibble (tidyverse) package to look at basin_nf_seplains_raw.
@@ -325,7 +331,9 @@ Use st_crs() to look at the CRSs of the spatial data you have loaded up so far. 
 
 ```{r activity.check.out.data.again}
 # add your code here
-
+st_crs(basins_nf_seplains_raw)
+st_crs(gages_raw)
+st_crs(southeast_state_bounds_raw)
 # first two will not have EPSG code but have proj4 string (i.e., "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
 
 # last one will have EPSG code 5070 and proj4 string (i.e., "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"), this one looks good!
@@ -371,22 +379,29 @@ Last, check the CRSs of each.
 ```{r activity.setting.projecting}
 # define proj4 string and EPSG code
 # add your code here
-my_proj4 <- 
-my_epsg <- 
+my_proj4 <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+my_epsg <- 5070
 
 # setting projections
 # set the proj4 string first and then set the EPSG code (because proj4 will over-ride EPSG if you set EPSG first)
 # add your code here
 # basins
-basins_nf_seplains <- basins_nf_seplains_raw
+st_crs(basins_nf_seplains_raw) <- my_proj4 # define datum first
+st_crs(basins_nf_seplains_raw) <- my_epsg # then define projection
+basins_nf_seplains <- basins_nf_seplains_raw # create new variable with new projection
+
 
 # add your code here
 # gages
+st_crs(gages_raw) <- my_proj4 # define datum first
+st_crs(gages_raw) <- my_epsg
 gages <- gages_raw
 
 # state bounds
 # this one looks good so you don't need to do anything but here's the code anyway
 # add your code here
+st_crs(southeast_state_bounds_raw) <- my_proj4 # define datum first
+st_crs(southeast_state_bounds_raw) <- my_epsg
 southeast_state_bounds <- southeast_state_bounds_raw
 
 # projecting to North America Albers Equal Area Conic
@@ -424,7 +439,7 @@ Commands to convert tabular data to corresponding sf objects:
 
 ```{r tabular.to.sf }
 # read in GAGES-II data in tabular format
-gages_tabular <- read_csv(here("data", "tabular_data", "gagesII_sept30_2011_tabular.csv")) %>%
+gages_tabular <- read_csv(here("Lessons","sf-lesson-20200303","data", "tabular_data", "gagesII_sept30_2011_tabular.csv")) %>%
   as.data.frame() # use this to drop the tibble classes (i.e., tbl_df and tbl)
 
 # look at class
@@ -434,8 +449,9 @@ class(gages_tabular)
 names(gages_tabular)
 # LAT_GAGE is y value and LNG_GAGE is x value
 
-# convert to sf object
+# convert table to sf object using x and y data
 gages_tabular_as_sf <- st_as_sf(gages_tabular, coords = c("LNG_GAGE", "LAT_GAGE"), crs = 4326, dim = "XY") # lat long so set CRS = WGS84
+class(gages_tabular_as_sf)
 
 # check class and CRS
 class(gages_tabular_as_sf)
@@ -444,7 +460,7 @@ st_crs(gages_tabular_as_sf)
 # we'll need to change that if we want to use it with state bounds and watershed boundaries
 
 # check by plotting (more on plotting below)
-pdf(here("outputs", "tabular_to_sf_check.pdf"), width = 11, height = 8.5)
+pdf(here("Lessons","sf-lesson-20200303","outputs", "tabular_to_sf_check.pdf"), width = 11, height = 8.5)
 ggplot() +
   geom_sf(data = gages_tabular_as_sf) +
   theme_bw()
@@ -527,19 +543,35 @@ Bonus: What are some other spatial operations (or confirmations) that you could 
 ```{r activity.gages.select}
 # select a state, here I'm choosing North Carolina (NC)
 # add your code here
+va_state_bound <-
+  southeast_state_bounds %>%
+  filter(NAME=="Virginia") %>%
+  st_geometry() # drop attributes to decrease processing time
+
+va_state_bound_geom <-
+  southeast_state_bounds_geometry %>%
+  filter(NAME=="Virginia")
+class(va_state_bound)
 
 # check
 # add your code here
+class(va_state_bound)
 
-# select watersheds that intersect with NC bounds
+
+# select watersheds that intersect with VA bounds
 # add your code here
+nc_basins_nf_seplains <- basins_nf_seplains_raw %>%
+  st_intersection(va_state_bound)
 
 # check
 # add your code here
 
 # select gages that fall within NC bounds
 # add your code here
+gages_va <- gages %>%
+  st_intersection(va_state_bound)
 
+class(va_state_bound)
 # bonus
 # add your code here
 ```
@@ -556,14 +588,14 @@ Usually, I (Sheila) use RStudio to visualize all of my plots but since spatial d
 
 ```{r basic.sf.plotting}
 # basic plot
-pdf(here("outputs", "southeast_state_bounds.pdf"), width = 11, height = 8.5)
+pdf(here("Lessons","sf-lesson-20200303","outputs", "southeast_state_bounds.pdf"), width = 11, height = 8.5)
 ggplot() +
   geom_sf(data = southeast_state_bounds) + # you can add color = "blue" to change outline color to blue or lwd = 2 to change the width of the lines
   theme_bw() # add this to make the background white and not grey
 dev.off()
 
 # adding labels
-pdf(here("outputs", "southeast_state_bounds_with_labs.pdf"), width = 11, height = 8.5)
+pdf(here("Lessons","sf-lesson-20200303","outputs", "southeast_state_bounds_with_labs.pdf"), width = 11, height = 8.5)
 ggplot(data = southeast_state_bounds) + # moved this up here so I don't have to keep calling it
   geom_sf() +
   geom_sf_text(aes(label = NAME), color = "black") +
@@ -571,11 +603,20 @@ ggplot(data = southeast_state_bounds) + # moved this up here so I don't have to 
 dev.off()
 
 # adding fill by a second variable
-pdf(here("outputs", "southeast_state_bounds_by_area.pdf"), width = 11, height = 8.5)
-ggplot(data = southeast_state_bounds) +
+pdf(here("Lessons","sf-lesson-20200303","outputs", "va_state_bound.pdf"), width = 11, height = 8.5)
+ggplot(data = va_state_bound_geom) +
   geom_sf(aes(fill = Shape_Area)) +
   geom_sf_text(aes(label = NAME), color = "white") +
-  theme_bw()
+  theme_bw()  # not working, need sfc
+dev.off()
+
+
+# plot NC watershed boundaries from 3.1.2
+pdf(here("Lessons","sf-lesson-20200303","outputs", "spatial_operation_test_fig.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data=va_state_bounds_geom) +
+  geom_sf(data=va_basins_nf_seplains, fill="pink",alpha=0.25) +
+  geom_sf(data=va_gaegs, color="black")
 dev.off()
 ```
 
@@ -585,8 +626,12 @@ Let's check your operations from the 3.1.2 activity. You are trying for somethin
 
 ```{r activity.checking.operations}
 # plot NC watershed boundardies from 3.1.2
-pdf(here("outputs", "spatial_operations_test_fig.pdf"), width = 11, height = 8.5)
+pdf(here("Lessons","sf-lesson-20200303","outputs", "spatial_operations_test_fig.pdf"), width = 11, height = 8.5)
 # add your code here
+ggplot(data = va_state_bound_geom) +
+  geom_sf(aes(fill = Shape_Area)) +
+  geom_sf_text(aes(label = NAME), color = "white") +
+  theme_bw()  # not working, need sfc
 dev.off()
 ```
 
@@ -629,7 +674,7 @@ nc_state_bounds_geom_wsg84 <- nc_state_bounds_geom %>%
 st_crs(nc_state_bounds_geom_wsg84)
 
 # plot without basemap
-pdf(here("outputs", "nc_without_basemap.pdf"), width = 11, height = 8.5)
+pdf(here("Lessons","sf-lesson-20200303","outputs", "nc_without_basemap.pdf"), width = 11, height = 8.5)
 ggplot() +
   geom_sf(data = nc_state_bounds_geom_wsg84, fill = NA, lwd = 2) +
   theme_bw()
@@ -637,8 +682,8 @@ dev.off()
 
 # plot with basemap
 # windows version?
-pdf(here("outputs", "nc_with_basemap.pdf"), width = 11, height = 8.5)
-ggmap(nc_basemap) +
+pdf(here("Lessons","sf-lesson-20200303","outputs", "nc_with_basemap.pdf"), width = 11, height = 8.5)
+ggmap(nc_basemap) + # didn't change crs, bc using ggmap, corrects on the fly?
   geom_sf(data = nc_state_bounds_geom_wsg84, fill = NA, lwd = 1, inherit.aes = FALSE)
 dev.off()
 
@@ -652,24 +697,28 @@ dev.off()
 Can you reproduce Figure 1b?
 
 ```{r activity.reproducing.figure1b}
-# select NC
-# add your code here
+# select SC
+sc_state_bounds_geom <- southeast_state_bounds %>%
+  filter(NAME == "South Carolina")
 
 # make figure 1b
-# find watersheds that overlap with NC (want the whole watershed, not just the part of the watershe that's inside the NC bounds)
-# add your code here
+# find watersheds that overlap with SC (want the whole watershed, not just the part of the watershe that's inside the SC bounds)
+sc_basins_nf_seplains <- basins_nf_seplains %>%
+  st_within(sc_state_bounds_geom)
 
 # look at result
-# add your code here
+class(sc_basins_nf_seplains)
 
 # make a function to convert binary to logic
-# add your code here
+sc_basins_nf_seplains$indicator <-  sc_basins_nf_seplains %>% lengths > 0
 
 # map function on data and select only true values
-# add your code here
+basins_nf_seplains_in_sc <- basins_nf_seplains %>%
+  mutate(sc_basins_nf_seplains$indicator) %>%
+  filter(sc_basins_nf_seplains$indicator==TRUE)
 
 # look at result
-# add your code here
+class(basins_nf_seplains_in_sc)
 
 # use nc_basins_overlap_logic to select only watersheds that overlap
 # add your code here
@@ -690,8 +739,9 @@ Can you reproduce Figure 1b?
 
 # plot figure 1b
 # add your code here
-pdf(here("outputs", "figure_1b.pdf"), width = 11, height = 8.5)
-# add your code here
+pdf(here("Lessons","sf-lesson-20200303","outputs", "basins_test.pdf"), width = 11, height = 8.5)
+ggplot(basins_nf_seplains_in_sc) +
+  geom_sf()
 dev.off()
 ```
 
