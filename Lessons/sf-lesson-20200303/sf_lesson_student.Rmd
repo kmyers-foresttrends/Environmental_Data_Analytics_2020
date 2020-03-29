@@ -701,47 +701,48 @@ Can you reproduce Figure 1b?
 sc_state_bounds_geom <- southeast_state_bounds %>%
   filter(NAME == "South Carolina")
 
-# make figure 1b
-# find watersheds that overlap with SC (want the whole watershed, not just the part of the watershe that's inside the SC bounds)
-sc_basins_nf_seplains <- basins_nf_seplains %>%
-  st_within(sc_state_bounds_geom)
-
-# look at result
-class(sc_basins_nf_seplains)
-
 # make a function to convert binary to logic
-sc_basins_nf_seplains$indicator <-  sc_basins_nf_seplains %>% lengths > 0
-
-# map function on data and select only true values
-basins_nf_seplains_in_sc <- basins_nf_seplains %>%
-  mutate(sc_basins_nf_seplains$indicator) %>%
-  filter(sc_basins_nf_seplains$indicator==TRUE)
+sc_basins_overlap <- basins_nf_seplains[st_within(basins_nf_seplains, sc_state_bounds_geom) %>% lengths > 0,]
 
 # look at result
-class(basins_nf_seplains_in_sc)
+sc_basins_overlap
+class(sc_basins_overlap)
 
-# use nc_basins_overlap_logic to select only watersheds that overlap
-# add your code here
-
-# check class
-# add your code here
-
-# select Southeast gages only
-# add your code here
-# stretch break...this might take a while to run
-
-# use nc_basins_overlap_sel to find gages inside
-# add your code here
+# use sc_basins_overlap to find gages inside
+gages_sc_basins <- gages %>%
+  st_intersection(sc_basins_overlap)
 # stretch break...this might take a while to run
 
 # convert all to WGS84
-# add your code here
+my_epsg <- 4326
+st_crs(gages_sc_basins) <- my_epsg
+st_crs(gages_sc) <- my_epsg
+st_crs(sc_basins_overlap) <- my_epsg
+st_crs(sc_state_bounds_geom) <- my_epsg
+
+# get data bounding box
+sc_bbox <- sc_state_bounds_geom %>%
+  st_buffer(dist = 150000) %>% # this value is very arbitrary just wanting to make a large buffer around geometry
+  st_transform(4326) %>% # WGS84 (for lat and long)
+  st_bbox()
+sc_bbox # check
+
+# fix bounding box columns so they match what is needed for the ggmap::get_map() function
+sc_bbox_fix <- c(left = sc_bbox[[1]], bottom = sc_bbox[[2]], right = sc_bbox[[3]], top = sc_bbox[[4]])
+
+# check result
+sc_bbox_fix
+
+# get basemap
+sc_basemap <- get_map(sc_bbox_fix, maptype = 'terrain-background', source = 'stamen', zoom = 8)
 
 # plot figure 1b
 # add your code here
-pdf(here("Lessons","sf-lesson-20200303","outputs", "basins_test.pdf"), width = 11, height = 8.5)
-ggplot(basins_nf_seplains_in_sc) +
-  geom_sf()
+pdf(here("Lessons","sf-lesson-20200303","outputs", "figure1b.pdf"), width = 11, height = 8.5)
+ggplot(sc_basemap) +
+  geom_sf(sc_state_bounds_geom, fill="") +
+  geom_sf(sc_basins_overlap, alph=0.25) +
+  geom_sf(gages_sc_basins)
 dev.off()
 ```
 
