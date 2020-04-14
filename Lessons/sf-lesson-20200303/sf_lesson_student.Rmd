@@ -722,7 +722,7 @@ st_crs(sc_state_bounds_geom) <- my_epsg
 
 # get data bounding box
 sc_bbox <- sc_state_bounds_geom %>%
-  st_buffer(dist = 150000) %>% # this value is very arbitrary just wanting to make a large buffer around geometry
+  st_buffer(dist = 15000) %>% # this value is very arbitrary just wanting to make a large buffer around geometry
   st_transform(4326) %>% # WGS84 (for lat and long)
   st_bbox()
 sc_bbox # check
@@ -739,7 +739,7 @@ sc_basemap <- get_map(sc_bbox_fix, maptype = 'terrain-background', source = 'sta
 # plot figure 1b
 # add your code here
 pdf(here("Lessons","sf-lesson-20200303","outputs", "figure1b.pdf"), width = 11, height = 8.5)
-ggplot(sc_basemap) +
+ggmap(sc_basemap) +
   geom_sf(sc_state_bounds_geom, fill="") +
   geom_sf(sc_basins_overlap, alph=0.25) +
   geom_sf(gages_sc_basins)

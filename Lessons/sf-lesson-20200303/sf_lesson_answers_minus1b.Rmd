@@ -52,6 +52,7 @@ library("sf")
 library("ggmap")
 # some other packages
 library("here")
+setwd('C:/Users/Temp/Documents/Duke/S20/DataAnalytics/Environmental_Data_Analytics_2020/Lessons/sf-lesson-20200303')
 ```
 
 Please make sure that the pdf() command works on your computer.
