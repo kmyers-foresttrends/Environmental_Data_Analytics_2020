@@ -1,9 +1,7 @@
-# Environmental_Data_Analytics_2020
-Course repository for Environmental Data Analytics (ENV 872L) at Duke University, spring 2020
+# Comparison of community and citizen natural resource rights across Sub-Saharan Africa
+Course final project repository for Environmental Data Analytics (ENV 872L) at Duke University, spring 2020
 
 Student: Kimberly Myers (krm75@duke.edu)
-
-Title:  Comparison of community and citizen natural resource rights across Sub-Saharan Africa
 
 
 ## Summary
