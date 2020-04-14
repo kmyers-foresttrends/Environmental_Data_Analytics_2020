@@ -1,0 +1,50 @@
+Country code,Country,Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Q11
+AO,Angola,Yes,No,"No, implied",No,No,No,No,No,No,No,No
+BJ,Benin,Yes,No,No,No,No,No,No,No,No,No,No
+BW,Botswana,Yes,No,Yes,Yes,Yes,Silent,No,Yes,"Yes, implied","Yes, implied","Yes, implied"
+BF,Burkina Faso,Yes,No,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied","Yes, implied"
+BI,Burundi,"Yes, implied","No, implied","No, implied",Partial,Yes,Silent,No,Yes,Yes,"Yes, implied",No
+CM,Cameroon,Yes,No,Silent,Partial,Partial,Silent,No,Yes,Yes,"Yes, implied",No
+CV,Cape Verde,"Yes, implied","No, implied","No, implied",No,No,No,No,No,No,No,No
+CF,Central African Republic,Yes,No,No,No,No,No,No,No,No,No,No
+TD,Chad,Yes,No,No,No,No,No,No,No,No,No,No
+KM,Comoros,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available
+CG,Congo Republic (Congo Brazzaville),Yes,No,No,No,No,No,No,No,No,No,No
+CI,Cote d'Ivoire,Yes,No,No,No,No,No,No,No,No,No,No
+CD,Democratic Republic of Congo,Yes,No,No,No,No,No,No,No,No,No,No
+DJ,Djibouti,Yes,No,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied",No
+GQ,Equatorial Guinea,Yes,No,No,No,No,No,No,No,No,No,No
+ER,Eritrea,Yes,No,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied","Yes, implied"
+ET,Ethiopia,Yes,No,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied","Yes, implied"
+GA,Gabon,Yes,No,No,No,No,No,No,No,No,No,No
+GM,Gambia,Yes,No,Yes,Yes,Yes,Silent,Silent,Yes,No,"Yes, implied",No
+GH,Ghana,Yes,No,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied",No
+GN,Guinea,Yes,No,No,No,No,No,No,No,No,No,No
+GW,Guinea-Bissau,Yes,No,Silent,Yes,Yes,Silent,No,No,No,No,No
+KE,Kenya,Partial,Yes,Yes,Yes,Yes,Silent,Partial,Yes,No,"Yes, implied",No
+LS,Lesotho,Yes,No,No,No,No,No,No,No,No,No,No
+LI,Liberia,Yes,No,No,No,No,No,No,No,No,No,No
+MG,Madagascar,Yes,No,No,No,No,No,No,No,No,No,No
+MW,Malawi,Yes,Yes,Yes,Yes,Yes,Silent,No,Yes,No,"Yes, implied",Yes
+ML,Mali,"Yes, implied","No, implied","No, implied",No,No,No,No,No,No,No,No
+MR,Mauritania,Yes,Yes,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied",No
+MU,Mauritius,Yes,No,Silent,Yes,No,Silent,Silent,"Yes, implied",No,No,No
+MZ,Mozambique,Yes,No,Yes,Yes,Yes,Silent,No,Yes,No,Yes,No
+NA,Namibia,Yes,No,Silent,Yes,No,Silent,No,Yes,No,"Yes, implied",No
+NE,Niger,Yes,No,Silent,Yes,No,No,Silent,Yes,No,"Yes, implied",No
+NG,Nigeria,Yes,No,Yes,Yes,Yes,No,No,Yes,No,"Yes, implied",No
+RW,Rwanda,Yes,No,No,No,No,No,No,No,No,No,No
+ST,Sao Tome & Principe,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available,No information available
+SN,Senegal,Yes,No,No,No,No,No,No,No,No,No,No
+SC,Seychelles,Yes,No,No,No,No,No,No,No,No,No,No
+SL,Sierra Leone,Yes,No,No,No,No,No,No,No,No,No,No
+SO,Somalia,Yes,No,No,No,No,No,No,No,No,No,No
+ZA,South Africa,Yes,No,Silent,Yes,Yes,Silent,No,Yes,No,"Yes, implied","Yes, implied"
+SS,South Sudan,Yes,No,No,No,No,No,No,No,No,No,No
+SD,Sudan,Partial,"Yes, implied",Silent,"Yes, implied",No,Silent,Silent,No,No,No,No
+SZ,Swaziland,"Yes, implied","No, implied","No, implied",No,No,No,No,No,No,No,No
+TZ,Tanzania,Yes,No,Silent,Yes,No,Silent,Yes,Yes,No,Partial,"Yes, implied"
+TG,Togo,Yes,No,No,No,No,No,No,No,No,No,No
+UG,Uganda,Yes,No,Silent,Yes,Yes,Silent,No,No,No,"Yes, implied",No
+ZM,Zambia,Yes,No,No,No,No,No,No,No,No,No,No
+ZW,Zimbabwe,Yes,No,Silent,Partial,Yes,Silent,No,No,"Yes, implied",Yes,No
