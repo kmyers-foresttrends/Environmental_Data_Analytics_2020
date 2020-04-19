@@ -54,19 +54,19 @@ Project > Scripts > FinalProject_Myers.rmd
 
 ## Metadata
 All datasets used in analysis were formatted as follows:
-- Country code = 2-letter code of country
-- Country = Country name
-- Q1 = Does the law provide that the natural resource is the property of the state or part of the public domain?
-- Q2 = Does the law recognize any private ownership of the natural resource?
-- Q3 = Does the law recognize customary or traditional rights to the natural resource?
-- Q4 = Does the law provide for the use of the natural resource by any person without authorization from the government or payment of fees (hereafter called “free” natural resource use rights)?
-- Q5 = By law, are “free” natural resource use rights linked to land rights or are they independent of land rights?
-- Q6 = By law, can a person employ any equipment, technology or method for exercising “free” natural resource use rights?
-- Q7 = By law, can “free” natural resource use rights be extended for commercial purposes without a government authorization?
-- Q8 = Does the law provide certain conditions, restrictions or limitations on the exercise of “free” natural resource use rights?
-- Q9 = Does the law provide for registration of “free” natural resource use rights? If not, does the law empower an institution to monitor the exercise of “free” use rights?
-- Q10 = Does the law provide for revocation or taking away of “free” natural resource use rights?
-- Q11 = Does the law have grievance and dispute resolution mechanisms available to holders of “free” natural resource use rights?
+- Country code = 2-letter code of country (cat)
+- Country = Country name (cat)
+- Q1 = Does the law provide that the natural resource is the property of the state or part of the public domain? (cat)
+- Q2 = Does the law recognize any private ownership of the natural resource? (cat)
+- Q3 = Does the law recognize customary or traditional rights to the natural resource? (cat)
+- Q4 = Does the law provide for the use of the natural resource by any person without authorization from the government or payment of fees (hereafter called “free” natural resource use rights)? (cat)
+- Q5 = By law, are “free” natural resource use rights linked to land rights or are they independent of land rights? (cat)
+- Q6 = By law, can a person employ any equipment, technology or method for exercising “free” natural resource use rights? (cat)
+- Q7 = By law, can “free” natural resource use rights be extended for commercial purposes without a government authorization? (cat)
+- Q8 = Does the law provide certain conditions, restrictions or limitations on the exercise of “free” natural resource use rights? (cat)
+- Q9 = Does the law provide for registration of “free” natural resource use rights? If not, does the law empower an institution to monitor the exercise of “free” use rights? (cat)
+- Q10 = Does the law provide for revocation or taking away of “free” natural resource use rights? (cat)
+- Q11 = Does the law have grievance and dispute resolution mechanisms available to holders of “free” natural resource use rights? (cat)
 
 
 ## Scripts and code
