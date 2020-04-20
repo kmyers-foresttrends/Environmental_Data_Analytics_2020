@@ -1,30 +1,229 @@
 ---
-title: "FinalProject_Myers"
+output: 
+  pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    number_sections: yes
+geometry: margin=2.54cm
+title: "Comparison of community and citizen natural resource rights across Sub-Saharan Africa"
+subtitle: "https://github.com/krm75/Environmental_Data_Analytics_2020/tree/master/ResourceRights"
 author: "Kim Myers"
-date: "4/14/2020"
-output: pdf_document
+fontsize: 12pt
+mainfont: Times New Roman
+
 ---
 
+\newpage
+\tableofcontents 
+\newpage
+\listoftables 
+\newpage
+\listoffigures 
+\newpage
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Set your working directory
+setwd("../Data")
+
+# Load your packages
+library(ggplot2)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(wesanderson)
+library(sf)
+library(ggmap)
+library(cowplot)
+library(corrplot)
+library(Hmisc)
+
+# Set your ggplot theme
+mytheme <- theme_light(base_size = 11) +
+  theme(axis.text = element_text(color = "dark gray"), 
+        legend.position = "right")
+
+theme_set(mytheme)
+
+# Load your datasets
+wildlife <- read.csv("rights_to_resources_wildlife.csv")
+water <- read.csv("rights_to_resources_water.csv")
+trees <- read.csv("rights_to_resources_trees.csv")
+petroleum <- read.csv("rights_to_resources_petroleum.csv")
+minerals <- read.csv("rights_to_resources_minerals.csv")
+africa <- st_read("Africa.shp")
+
+
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Rationale and Research Questions
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+
+\newpage
+
+# Dataset Information
+```{r}
+kable(head(wildlife),
+caption = "Table 1: First 10 rows of the 5 raw data sets, 1 for each resource.") %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F) %>%
+  column_spec(3:13, width_min = "4em", width_max = "4em")
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+\newpage
+
+# Exploratory Analysis and Data Wrangling
+```{r}
+length(unique(wildlife$Country))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+unique(wildlife$Country)
+```
+
+```{r}
+nrow(wildlife)
+```
+
+```{r}
+ncol(wildlife)
+```
+
+```{r}
+colnames(wildlife)
+```
+
+```{r}
+str(wildlife)
+```
+
+
+```{r, fig.height = 3, fig.width = 4, warning = FALSE}
+#summary(wildlife)
+yes <- c('Yes','Yes, implied')
+no <- c('No','No information available','No, implied','Silent')
+
+
+wildlife[,c(4:6,8:9,11,13)] <- sapply(wildlife[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+wildlife$count <- apply(wildlife[,c(4:6,8:9,11,13)],1,sum)
+
+minerals[,c(4:6,8:9,11,13)] <- sapply(minerals[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+minerals$count <- apply(minerals[,c(4:6,8:9,11,13)],1,sum)
+
+water[,c(4:6,8:9,11,13)] <- sapply(water[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+water$count <- apply(water[,c(4:6,8:9,11,13)],1,sum)
+
+petroleum[,c(4:6,8:9,11,13)] <- sapply(petroleum[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+petroleum$count <- apply(petroleum[,c(4:6,8:9,11,13)],1,sum)
+
+trees[,c(4:6,8:9,11,13)] <- sapply(trees[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+trees$count <- apply(trees[,c(4:6,8:9,11,13)],1,sum)
+
+
+countrycounts <- data.frame(wildlife$Country,wildlife$count,minerals$count,water$count,petroleum$count,trees$count)
+countrycounts$Total <- apply(countrycounts[,c(2:6)],1,sum)/35
+colnames(countrycounts) <- c("Country","Wildlife","Minerals","Water","Petroleum","Trees","Total")
+
+kable(countrycounts[order(-countrycounts$Total),],
+caption = "Table 2: Number of survey question responses that support individual/community resource rights to some degree.", row.names = F)  %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F) #%>%
+  #column_spec(3:13, width_min = "4em", width_max = "4em")
+
+```
+
+```{r fig1, echo=FALSE,message=FALSE,include=TRUE,fig.cap="Average proportion of survey responses which support individual/community resource rights to some degree by resource type."}
+
+average.yeses <- apply(countrycounts[,c(2:6)],2,mean)/7 #CHECK THIS
+stddev.yeses <- (apply(countrycounts[,c(2:6)],2,sd)/7)/2
+resources <- c('Wildlife','Minerals','Water','Petroleum','Trees')
+yeses.figure.df <- data.frame(resources,average.yeses,stddev.yeses,row.names = NULL)
+colnames(yeses.figure.df) <- c('resource','average','stddev')
+yeses.figure.df <- yeses.figure.df[order(-yeses.figure.df$average),]
+
+average.yeses.plot <- ggplot(yeses.figure.df, aes(x=reorder(resource, -average), y=average, fill=resource)) + 
+  geom_bar(stat="identity",position=position_dodge()) +
+  geom_errorbar(aes(ymin=average-stddev, ymax=average+stddev), width=.2,
+               position=position_dodge(.9)) +
+  labs(x="", y = "Average Porportion of 'Yes' Responses",fill="") +
+  scale_fill_manual(values=wes_palette(name="Cavalcanti1",n=5))
+print(average.yeses.plot)
+
+```
+
+
+\newpage
+
+# Analysis
+```{r}
+#attributes(africa_wildlife_merged) 
+africa_resources_merged <- merge(africa, countrycounts, by.x = "COUNTRY", by.y = "Country", all=T)
+
+africa_total <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Total),col='black') +
+  labs(title='All Resources',fill='') +
+  scale_fill_gradient(low="white", high="#4E2A1E",na.value = 'gray')
+
+africa_wildlife <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Wildlife),col='black') +
+  labs(title='Wildlife',fill='') +
+  scale_fill_gradient(low="white", high="#972D15",na.value = 'gray')
+
+africa_trees <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Trees),col='black') +
+  labs(title='Trees',fill='')+
+  scale_fill_gradient(low="white", high="#A2A475",na.value = 'gray')
+
+africa_water <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Water),col='black') +
+  labs(title='Water',fill='')+
+  scale_fill_gradient(low="white", high="#81A88D",na.value = 'gray')
+
+africa_minerals <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Minerals),col='black') +
+  labs(title='Minerals',fill='')+
+  scale_fill_gradient(low="white", high="#FAD510",na.value = 'gray')
+
+africa_petroleum <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Petroleum),col='black') +
+  labs(title='Petroleum', fill='')+
+  scale_fill_gradient(low="white", high="white",na.value = 'gray')
+
+
+plot_grid(africa_total,africa_wildlife,africa_trees,africa_water,africa_minerals,africa_petroleum, nrow = 2, align = 'h', rel_heights = c(2, 2))
+
+```
+
+```{r}
+country.counts.rcorr <- cor(countrycounts[,c(2:4,6)])
+
+corrplot(country.counts.rcorr) #discluded petroleum
+
+```
+
+```{r}
+ggplot(countrycounts) +
+  geom_point(aes(x=Wildlife, y=Minerals)) +
+  geom_point(aes(x=Wildlife, y=Water)) +
+  geom_point(aes(x=Wildlife, y=Trees))
+```
+
+## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
+
+## Question 2: 
+
+
+
+
+\newpage
+
+# Summary and Conclusions
+
+
+\newpage
+
+# References
+<add references here if relevant, otherwise delete this section> 
