@@ -158,7 +158,8 @@ print(average.yeses.plot)
 \newpage
 
 # Analysis
-```{r}
+```{r,echo=FALSE,message=FALSE,include=TRUE,fig.cap="Total number of survey questions from the Rights to Resources dataset that support individual or community resource rights.  The highest possible sum for each resource was 7.  In the All Resources panel, values equal the proportion of responses that promote resource rights."}
+
 #attributes(africa_wildlife_merged) 
 africa_resources_merged <- merge(africa, countrycounts, by.x = "COUNTRY", by.y = "Country", all=T)
 

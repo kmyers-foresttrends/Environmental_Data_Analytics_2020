@@ -1,4 +1,4 @@
-# Comparison of community and citizen natural resource rights across Sub-Saharan Africa
+# Comparison of community and individual natural resource rights across Sub-Saharan Africa
 Course final project repository for Environmental Data Analytics (ENV 872L) at Duke University, spring 2020
 
 Student: Kimberly Myers (krm75@duke.edu)
