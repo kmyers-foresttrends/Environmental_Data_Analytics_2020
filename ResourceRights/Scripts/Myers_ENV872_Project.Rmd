@@ -59,7 +59,7 @@ africa <- st_read("Africa.shp")
 
 # Rationale and Research Questions
 
-Throughout much of the developing world, property and resources are controlled by the state. Conversely, these assets are most often privately owned in developed countries.  This difference has created vast inequalities in individual and community access to natural resources, which can be integral to livelihoods and health.  WRI's Rights to Resources dataset provides some insight into the state of natural resource rights in Sub-Saharan African countries, which are predominantly considered developing nations.  The data are formatted into 11 yes-no survey questions that specify limitations on resource access, with responses for 49 countries.  Using spatial and statistical analysis, I analyzed these survey data to find how resource rights vary by type and by country.  My research questions included:
+Throughout much of the developing world, property and resources are controlled by the state. Conversely, these assets are most often privately owned in developed countries.  This difference has created vast inequalities in individual and community access to natural resources, which can be integral to livelihoods and health.  WRI's Rights to Resources dataset provides some insight into the state of natural resource rights in Sub-Saharan African countries, which are predominantly considered developing nations.  The data are formatted into 11 yes-no survey questions that specify limitations on resource access, with responses for 49 countries (Table 1; Table 2).  Using spatial and statistical analysis, I analyzed these survey data to find how resource rights vary by type and by country.  My research questions included:
 
 
 ## Question 1: How do individual and community rights in Sub-Saharan Africa differ between trees, wildlife, petroleum, water, and minerals?
@@ -107,15 +107,10 @@ col.names = "Responses")  %>%
 
 # Dataset Information
 
-Provide information on how the dataset for this analysis were collected, the data contained in the dataset, and any important pieces of information that are relevant to your analyses. 
+The "Rights to Resource" data used in this analysis come from World Resource Institute's Land and Resource Rights Initiative and were published in November 2013.  In the data set, there are 5 sets of 11-question surveys detailing policies on water, trees, wildlife, minerals, and petroleum resources (Table 3).  Questions in the survey pertain to individual and community resource rights in sub-Saharan Africa.  In total, the project collected data on framework laws for 49 countries. Many of the nations studied enforce state-managed resource use. Resource Watch intended for this information to empower citizens and communities, investors, and policymakers to promote change. All data published by WRI was subjected to strict academic standards.  They strived to disperse information that is 'rigorous' and 'objective'.
 
-Describe how you wrangled your dataset in a format similar to a methods section of a journal article.
+To quantify support for resource rights, I excluded survey questions that did not pertain to private citizens (Q1, Q5, Q8, Q10, Q11). FIX THIS If the response promoted the use of private natural resource use (could be affirmative or not affirmative, depending on the question), it was assigned a value of '1'.  If it did not, it received a value of '0'.  In this format, I summed the total number of laws that support resource rights and divided by the total number of relevant questions to find the proportion of laws that promote resource rights.
 
-The dataset was created by the Governance Center at World Resources Institute, which manages the Land and Resource Rights Intitiative.  They published the data in November 2013 and I first accessed the data in April 2020.  They formatted the data as a survey and analyzed existing policy to provide categorical responses to the questions (yes, no, partially, silent, implied, etc.).
-
-The "Rights to Resource" data used in this analysis come from World Resource Institute's Land and Resource Rights Initiative and were published in November 2013.  In the data set, there are 5 sets of 11-question surveys detailing policies on water, trees, wildlife, minerals, and petroleum resources.  Questions in the survey pertain to individual and community resource rights in sub-Saharan Africa.  In total, the project collected data on framework laws for 49 countries. Many of the nations studied enforce state-managed resource use. Resource Watch intended for this information to empower citizens and communities, investors, and policymakers to promote change. 
-
-All data published by WRI is subjected to strict academic standards.  They strive to disperse information that is 'rigorous' and 'objective'.
 
 ```{r}
 kable(head(wildlife),
