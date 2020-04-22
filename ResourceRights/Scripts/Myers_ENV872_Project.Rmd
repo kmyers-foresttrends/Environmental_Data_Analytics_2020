@@ -1,0 +1,294 @@
+---
+output: 
+  pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    number_sections: yes
+geometry: margin=2.54cm
+title: "Comparison of community and citizen natural resource rights across Sub-Saharan Africa"
+subtitle: "https://github.com/krm75/Environmental_Data_Analytics_2020/tree/master/ResourceRights"
+author: "Kim Myers"
+fontsize: 12pt
+mainfont: Times New Roman
+
+---
+
+\newpage
+\tableofcontents 
+\newpage
+\listoftables 
+\newpage
+\listoffigures 
+\newpage
+
+```{r setup, include=FALSE}
+# Set your working directory
+setwd("../Data")
+
+# Load your packages
+library(ggplot2)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(wesanderson)
+library(sf)
+library(ggmap)
+library(cowplot)
+library(corrplot)
+library(Hmisc)
+
+# Set your ggplot theme
+mytheme <- theme_light(base_size = 11) +
+  theme(axis.text = element_text(color = "dark gray"), 
+        legend.position = "right")
+
+theme_set(mytheme)
+
+# Load your datasets
+wildlife <- read.csv("rights_to_resources_wildlife.csv")
+water <- read.csv("rights_to_resources_water.csv")
+trees <- read.csv("rights_to_resources_trees.csv")
+petroleum <- read.csv("rights_to_resources_petroleum.csv")
+minerals <- read.csv("rights_to_resources_minerals.csv")
+africa <- st_read("Africa.shp")
+
+
+
+```
+
+
+# Rationale and Research Questions
+
+Throughout much of the developing world, property and resources are controlled by the state. Conversely, these assets are most often privately owned in developed countries.  This difference has created vast inequalities in individual and community access to natural resources, which can be integral to livelihoods and health.  WRI's Rights to Resources dataset provides some insight into the state of natural resource rights in Sub-Saharan African countries, which are predominantly considered developing nations.  The data are formatted into 11 yes-no survey questions that specify limitations on resource access, with responses for 49 countries.  Using spatial and statistical analysis, I analyzed these survey data to find how resource rights vary by type and by country.  My research questions included:
+
+
+## Question 1: How do individual and community rights in Sub-Saharan Africa differ between trees, wildlife, petroleum, water, and minerals?
+
+## Question 2: How do individual and community rights differ between Sub-Saharan African countries?
+
+By generating these results, I inferred which nations in the study region have the strongest and weakest policies supporting resource rights and for which resources.  Further research could link the resulting indicators of support to other variables, such as income and economic growth, to quantify the relationship between resource access and poverty.
+
+```{r}
+surveyqs <- c("Does the law provide that the natural resource is the property of the state or part of the public domain?",
+              "Does the law recognize any private ownership of the natural resource?",
+              "Does the law recognize customary or traditional rights to the natural resource?",
+              "Does the law provide for the use of the natural resource by any person without authorization from the      government or payment of fees (hereafter called “free” natural resource use rights)?", 
+              "By law, are “free” natural resource use rights linked to land rights or are they independent of land rights?",
+              "By law, can a person employ any equipment, technology or method for exercising “free” natural resource use rights?",
+              "By law, can “free” natural resource use rights be extended for commercial purposes without a government authorization?",
+              "Does the law provide certain conditions, restrictions or limitations on the exercise of “free” natural resource use rights?",
+              "Does the law provide for registration of “free” natural resource use rights? If not, does the law empower an institution to monitor the exercise of “free” use rights?", 
+              "Does the law provide for revocation or taking away of “free” natural resource use rights?", 
+              "Does the law have grievance and dispute resolution mechanisms available to holders of “free” natural resource use rights?")
+
+qnums <- c('Q1','Q2','Q3','Q4','Q5','Q6','Q7','Q8','Q9','Q10','Q11')
+
+survey.table <- data.frame(qnums,surveyqs)
+colnames(survey.table) <- c('','Question')
+
+kable(survey.table,
+caption = "Table 1: List of survey questions included in the Rights to Resources dataset.", row.names = F)  %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F)
+```
+```{r}
+responses <- data.frame(c('No','No information available','Partial','Silent','Yes','Yes, implied'))
+
+kable(Responses,
+caption = "Table 2: Possible survey question responses.", row.names = F,
+col.names = "Responses")  %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F)
+
+```
+
+
+
+
+\newpage
+
+# Dataset Information
+
+Provide information on how the dataset for this analysis were collected, the data contained in the dataset, and any important pieces of information that are relevant to your analyses. 
+
+Describe how you wrangled your dataset in a format similar to a methods section of a journal article.
+
+The dataset was created by the Governance Center at World Resources Institute, which manages the Land and Resource Rights Intitiative.  They published the data in November 2013 and I first accessed the data in April 2020.  They formatted the data as a survey and analyzed existing policy to provide categorical responses to the questions (yes, no, partially, silent, implied, etc.).
+
+The "Rights to Resource" data used in this analysis come from World Resource Institute's Land and Resource Rights Initiative and were published in November 2013.  In the data set, there are 5 sets of 11-question surveys detailing policies on water, trees, wildlife, minerals, and petroleum resources.  Questions in the survey pertain to individual and community resource rights in sub-Saharan Africa.  In total, the project collected data on framework laws for 49 countries. Many of the nations studied enforce state-managed resource use. Resource Watch intended for this information to empower citizens and communities, investors, and policymakers to promote change. 
+
+All data published by WRI is subjected to strict academic standards.  They strive to disperse information that is 'rigorous' and 'objective'.
+
+```{r}
+kable(head(wildlife),
+caption = "Table 3: Sample of the first 10 rows of the 5 raw data sets.  There is one table for each resource.") %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F) %>%
+  column_spec(3:13, width_min = "4em", width_max = "4em")
+```
+
+
+
+
+\newpage
+
+# Exploratory Analysis 
+
+Insert exploratory visualizations of your dataset. This may include, but is not limited to, graphs illustrating the distributions of variables of interest and/or maps of the spatial context of your dataset. Format your R chunks so that graphs are displayed but code is not displayed. Accompany these graphs with text sections that describe the visualizations and provide context for further analyses.
+
+Each figure should be accompanied by a caption, and each figure should be referenced within the text. 
+
+Scope: think about what information someone might want to know about the dataset before analyzing it statistically. How might you visualize this information? 
+
+
+```{r}
+length(unique(wildlife$Country))
+```
+
+```{r}
+unique(wildlife$Country)
+```
+
+```{r}
+nrow(wildlife)
+```
+
+```{r}
+ncol(wildlife)
+```
+
+```{r}
+colnames(wildlife)
+```
+
+```{r}
+str(wildlife)
+```
+
+
+```{r, fig.height = 3, fig.width = 4, warning = FALSE}
+#summary(wildlife)
+yes <- c('Yes','Yes, implied','Partial')
+no <- c('No','No information available','No, implied','Silent')
+
+
+wildlife[,c(4:6,8:9,11,13)] <- sapply(wildlife[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+wildlife$count <- apply(wildlife[,c(4:6,8:9,11,13)],1,sum)
+
+minerals[,c(4:6,8:9,11,13)] <- sapply(minerals[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+minerals$count <- apply(minerals[,c(4:6,8:9,11,13)],1,sum)
+
+water[,c(4:6,8:9,11,13)] <- sapply(water[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+water$count <- apply(water[,c(4:6,8:9,11,13)],1,sum)
+
+petroleum[,c(4:6,8:9,11,13)] <- sapply(petroleum[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+petroleum$count <- apply(petroleum[,c(4:6,8:9,11,13)],1,sum)
+
+trees[,c(4:6,8:9,11,13)] <- sapply(trees[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
+trees$count <- apply(trees[,c(4:6,8:9,11,13)],1,sum)
+
+
+countrycounts <- data.frame(wildlife$Country,wildlife$count,minerals$count,water$count,petroleum$count,trees$count)
+countrycounts$Total <- apply(countrycounts[,c(2:6)],1,sum)/35
+colnames(countrycounts) <- c("Country","Wildlife","Minerals","Water","Petroleum","Trees","Total")
+
+kable(countrycounts[order(-countrycounts$Total),],
+caption = "Table 2: Number of survey question responses that support individual/community resource rights to some degree.", row.names = F)  %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F) #%>%
+  #column_spec(3:13, width_min = "4em", width_max = "4em")
+
+```
+
+```{r fig1, echo=FALSE,message=FALSE,include=TRUE,fig.cap="Average proportion of survey responses which support individual/community resource rights to some degree by resource type."}
+
+average.yeses <- apply(countrycounts[,c(2:6)],2,mean)/7 #CHECK THIS
+stddev.yeses <- (apply(countrycounts[,c(2:6)],2,sd)/7)/2
+resources <- c('Wildlife','Minerals','Water','Petroleum','Trees')
+yeses.figure.df <- data.frame(resources,average.yeses,stddev.yeses,row.names = NULL)
+colnames(yeses.figure.df) <- c('resource','average','stddev')
+yeses.figure.df <- yeses.figure.df[order(-yeses.figure.df$average),]
+
+average.yeses.plot <- ggplot(yeses.figure.df, aes(x=reorder(resource, -average), y=average, fill=resource)) + 
+  geom_bar(stat="identity",position=position_dodge()) +
+  geom_errorbar(aes(ymin=average-stddev, ymax=average+stddev), width=.2,
+               position=position_dodge(.9)) +
+  labs(x="", y = "Average Porportion of 'Yes' Responses",fill="") +
+  scale_fill_manual(values=wes_palette(name="Cavalcanti1",n=5))
+print(average.yeses.plot)
+
+```
+
+
+\newpage
+
+# Analysis
+
+Insert visualizations and text describing your main analyses. Format your R chunks so that graphs are displayed but code and other output is not displayed. Instead, describe the results of any statistical tests in the main text (e.g., "Variable x was significantly different among y groups (ANOVA; df = 300, F = 5.55, p < 0.0001)"). Each paragraph, accompanied by one or more visualizations, should describe the major findings and how they relate to the question and hypotheses. Divide this section into subsections, one for each research question.
+
+
+```{r,echo=FALSE,message=FALSE,include=TRUE,fig.cap="Total number of survey questions from the Rights to Resources dataset that support individual or community resource rights.  The highest possible sum for each resource was 7.  In the All Resources panel, values equal the proportion of responses that promote resource rights."}
+
+#attributes(africa_wildlife_merged) 
+africa_resources_merged <- merge(africa, countrycounts, by.x = "COUNTRY", by.y = "Country", all=T)
+
+africa_total <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Total),col='black') +
+  labs(title='All Resources',fill='') +
+  scale_fill_gradient(low="white", high="#4E2A1E",na.value = 'gray')
+
+africa_wildlife <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Wildlife),col='black') +
+  labs(title='Wildlife',fill='') +
+  scale_fill_gradient(low="white", high="#972D15",na.value = 'gray')
+
+africa_trees <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Trees),col='black') +
+  labs(title='Trees',fill='')+
+  scale_fill_gradient(low="white", high="#A2A475",na.value = 'gray')
+
+africa_water <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Water),col='black') +
+  labs(title='Water',fill='')+
+  scale_fill_gradient(low="white", high="#81A88D",na.value = 'gray')
+
+africa_minerals <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Minerals),col='black') +
+  labs(title='Minerals',fill='')+
+  scale_fill_gradient(low="white", high="#FAD510",na.value = 'gray')
+
+africa_petroleum <- ggplot(africa_resources_merged) +
+  geom_sf(aes(fill = Petroleum),col='black') +
+  labs(title='Petroleum', fill='')+
+  scale_fill_gradient(low="white", high="white",na.value = 'gray')
+
+
+plot_grid(africa_total,africa_wildlife,africa_trees,africa_water,africa_minerals,africa_petroleum, nrow = 2, align = 'h', rel_heights = c(2, 2))
+
+```
+
+```{r}
+country.counts.rcorr <- cor(countrycounts[,c(2:4,6)])
+
+corrplot(country.counts.rcorr) #discluded petroleum
+
+```
+
+```{r}
+ggplot(countrycounts) +
+  geom_point(aes(x=Wildlife, y=Minerals)) +
+  geom_point(aes(x=Wildlife, y=Water)) +
+  geom_point(aes(x=Wildlife, y=Trees))
+```
+
+ 
+
+
+
+
+\newpage
+
+# Summary and Conclusions
+
+Summarize your major findings from your analyses in a few paragraphs. What conclusions do you draw from your findings? Relate your findings back to the original research questions and rationale.
+
+\newpage
+
+# References
+<add references here if relevant, otherwise delete this section> 
