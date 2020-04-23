@@ -109,7 +109,7 @@ col.names = "Responses")  %>%
 
 The "Rights to Resource" data used in this analysis come from World Resource Institute's Land and Resource Rights Initiative and were published in November 2013.  In the data set, there are 5 sets of 11-question surveys detailing policies on water, trees, wildlife, minerals, and petroleum resources (Table 3).  Questions in the survey pertain to individual and community resource rights in sub-Saharan Africa.  In total, the project collected data on framework laws for 49 countries. Many of the nations studied enforce state-managed resource use. Resource Watch intended for this information to empower citizens and communities, investors, and policymakers to promote change. All data published by WRI was subjected to strict academic standards.  They strived to disperse information that is 'rigorous' and 'objective'.
 
-To quantify support for resource rights, I excluded survey questions that did not pertain to private citizens (Q1, Q5, Q8, Q10, Q11). FIX THIS If the response promoted the use of private natural resource use (could be affirmative or not affirmative, depending on the question), it was assigned a value of '1'.  If it did not, it received a value of '0'.  In this format, I summed the total number of laws that support resource rights and divided by the total number of relevant questions to find the proportion of laws that promote resource rights.
+To quantify support for resource rights, I excluded survey questions that did not exhibit a clear distinction between supporting and not supporting resource rights (Q5). If the response promoted the use of private natural resource use (could be affirmative or not affirmative, depending on the question), it was assigned a value of '1'.  If it did not, it received a value of '0'.  In this format, I summed the total number of supportive laws and divided by the total number of relevant questions to find the proportion of laws that promote resource rights.
 
 
 ```{r}
@@ -126,12 +126,9 @@ caption = "Table 3: Sample of the first 10 rows of the 5 raw data sets.  There i
 
 # Exploratory Analysis 
 
-Insert exploratory visualizations of your dataset. This may include, but is not limited to, graphs illustrating the distributions of variables of interest and/or maps of the spatial context of your dataset. Format your R chunks so that graphs are displayed but code is not displayed. Accompany these graphs with text sections that describe the visualizations and provide context for further analyses.
+## Inspecting the data sets
 
-Each figure should be accompanied by a caption, and each figure should be referenced within the text. 
-
-Scope: think about what information someone might want to know about the dataset before analyzing it statistically. How might you visualize this information? 
-
+Before wrangling the data, I looked at the structure of each data set.  I found that each resource table had 49 lines, one for each country surveyed.  I was able to list out all of the Sub-Saharan nations included in the analysis and the total numbers of columns - 13 - which comprised of all 11 survey questions and 2 fields for country ID.  Finally, I confirmed that all fields in the data were considered factors and viewed the range of responses to the surveys.
 
 ```{r}
 length(unique(wildlife$Country))
@@ -156,38 +153,87 @@ colnames(wildlife)
 ```{r}
 str(wildlife)
 ```
+```{r}
+summary(wildlife[,c(3:11)])
+```
+Looking at the range of factors for each survey question, I discovered that possible responses included: 'No information available', 'Partial', 'Yes', 'Yes, implied', 'No', and 'No, implied'.
 
+
+##Quantifying the survey responses
+
+In order to infer support for resource rights, I converted the survey responses to binary.  Any values in questions 2, 3, 4, 6, 7, 9, or 11 that equalled 'Yes', 'Yes, implied', and 'Partial' were assigned a value of 1.  I set all other responses ('No', 'No information available', No, implied', 'Silent') to 0. I repeated this process for questions 1, 8, and 10 but with a value of 1 for negative answers.  For this classification, I used only questions that clearly referred to the support for individual resource rights.  As a result, I included only 10 of the 11 survey questions in my analysis.
 
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 #summary(wildlife)
 yes <- c('Yes','Yes, implied','Partial')
-no <- c('No','No information available','No, implied','Silent')
+no <- c('No','No, implied','Silent')
+unknown <- 'No information available'
 
 
 wildlife[,c(4:6,8:9,11,13)] <- sapply(wildlife[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
-wildlife$count <- apply(wildlife[,c(4:6,8:9,11,13)],1,sum)
+wildlife$county <- apply(wildlife[,c(4:6,8:9,11,13)],1,sum)
 
 minerals[,c(4:6,8:9,11,13)] <- sapply(minerals[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
-minerals$count <- apply(minerals[,c(4:6,8:9,11,13)],1,sum)
+minerals$county <- apply(minerals[,c(4:6,8:9,11,13)],1,sum)
 
 water[,c(4:6,8:9,11,13)] <- sapply(water[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
-water$count <- apply(water[,c(4:6,8:9,11,13)],1,sum)
+water$county <- apply(water[,c(4:6,8:9,11,13)],1,sum)
 
 petroleum[,c(4:6,8:9,11,13)] <- sapply(petroleum[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
-petroleum$count <- apply(petroleum[,c(4:6,8:9,11,13)],1,sum)
+petroleum$county <- apply(petroleum[,c(4:6,8:9,11,13)],1,sum)
 
 trees[,c(4:6,8:9,11,13)] <- sapply(trees[,c(4:6,8:9,11,13)], FUN = function(x) ifelse(x %in% yes, 1, 0))
-trees$count <- apply(trees[,c(4:6,8:9,11,13)],1,sum)
+trees$county <- apply(trees[,c(4:6,8:9,11,13)],1,sum)
 
 
-countrycounts <- data.frame(wildlife$Country,wildlife$count,minerals$count,water$count,petroleum$count,trees$count)
-countrycounts$Total <- apply(countrycounts[,c(2:6)],1,sum)/35
+
+wildlife[,c(3,10,12)] <- sapply(wildlife[,c(3,10,12)], FUN = function(x) ifelse(x %in% no, 1, 0))
+wildlife$countn <- apply(wildlife[,c(3,10,12)],1,sum)
+
+minerals[,c(3,10,12)] <- sapply(minerals[,c(3,10,12)], FUN = function(x) ifelse(x %in% no, 1, 0))
+minerals$countn <- apply(minerals[,c(3,10,12)],1,sum)
+
+water[,c(3,10,12)] <- sapply(water[,c(3,10,12)], FUN = function(x) ifelse(x %in% no, 1, 0))
+water$countn <- apply(water[,c(3,10,12)],1,sum)
+
+petroleum[,c(3,10,12)] <- sapply(petroleum[,c(3,10,12)], FUN = function(x) ifelse(x %in% no, 1, 0))
+petroleum$countn <- apply(petroleum[,c(3,10,12)],1,sum)
+
+trees[,c(3,10,12)] <- sapply(trees[,c(3,10,12)], FUN = function(x) ifelse(x %in% no, 1, 0))
+trees$countn <- apply(trees[,c(3,10,12)],1,sum)
+
+
+wildlife$total.count <- wildlife$countn + wildlife$county
+trees$total.count <- trees$countn + trees$county
+minerals$total.count <- minerals$countn + minerals$county
+water$total.count <- water$countn + water$county
+petroleum$total.count <- petroleum$countn + petroleum$county
+
+
+countrycounts <- data.frame(wildlife$Country,wildlife$total.count,minerals$total.count,water$total.count,petroleum$total.count,trees$total.count)
+countrycounts$Total <- apply(countrycounts[,c(2:6)],1,sum)/50
 colnames(countrycounts) <- c("Country","Wildlife","Minerals","Water","Petroleum","Trees","Total")
 
 kable(countrycounts[order(-countrycounts$Total),],
-caption = "Table 2: Number of survey question responses that support individual/community resource rights to some degree.", row.names = F)  %>%
+caption = "Table 4: Number of survey question responses (n=10) that support individual/community resource rights to some degree.", row.names = F)  %>%
   kable_styling(bootstrap_options = c("hover", "condensed"),full_width = F) #%>%
   #column_spec(3:13, width_min = "4em", width_max = "4em")
+
+```
+
+Table 4 illustrates the total number of survey questions that support individual or community resource rights for each resource type in each country.  Through these calculations, I was able to quantify the proportion of supportive responses for each country studied.
+
+
+\newpage
+
+# Analysis
+
+Insert visualizations and text describing your main analyses. Format your R chunks so that graphs are displayed but code and other output is not displayed. Instead, describe the results of any statistical tests in the main text (e.g., "Variable x was significantly different among y groups (ANOVA; df = 300, F = 5.55, p < 0.0001)"). Each paragraph, accompanied by one or more visualizations, should describe the major findings and how they relate to the question and hypotheses. Divide this section into subsections, one for each research question.
+
+```{r fig1, echo=FALSE,message=FALSE,include=TRUE,fig.cap="Average proportion of survey responses which support individual/community resource rights to some degree by resource type."}
+country.counts.rcorr <- cor(countrycounts[,c(2:4,6)])
+
+corrplot(country.counts.rcorr) #discluded petroleum
 
 ```
 
@@ -210,12 +256,6 @@ print(average.yeses.plot)
 
 ```
 
-
-\newpage
-
-# Analysis
-
-Insert visualizations and text describing your main analyses. Format your R chunks so that graphs are displayed but code and other output is not displayed. Instead, describe the results of any statistical tests in the main text (e.g., "Variable x was significantly different among y groups (ANOVA; df = 300, F = 5.55, p < 0.0001)"). Each paragraph, accompanied by one or more visualizations, should describe the major findings and how they relate to the question and hypotheses. Divide this section into subsections, one for each research question.
 
 
 ```{r,echo=FALSE,message=FALSE,include=TRUE,fig.cap="Total number of survey questions from the Rights to Resources dataset that support individual or community resource rights.  The highest possible sum for each resource was 7.  In the All Resources panel, values equal the proportion of responses that promote resource rights."}
@@ -258,19 +298,8 @@ plot_grid(africa_total,africa_wildlife,africa_trees,africa_water,africa_minerals
 
 ```
 
-```{r}
-country.counts.rcorr <- cor(countrycounts[,c(2:4,6)])
 
-corrplot(country.counts.rcorr) #discluded petroleum
 
-```
-
-```{r}
-ggplot(countrycounts) +
-  geom_point(aes(x=Wildlife, y=Minerals)) +
-  geom_point(aes(x=Wildlife, y=Water)) +
-  geom_point(aes(x=Wildlife, y=Trees))
-```
 
  
 
@@ -282,8 +311,3 @@ ggplot(countrycounts) +
 # Summary and Conclusions
 
 Summarize your major findings from your analyses in a few paragraphs. What conclusions do you draw from your findings? Relate your findings back to the original research questions and rationale.
-
-\newpage
-
-# References
-<add references here if relevant, otherwise delete this section> 

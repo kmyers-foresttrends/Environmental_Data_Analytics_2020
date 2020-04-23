@@ -5,7 +5,7 @@ Student: Kimberly Myers (krm75@duke.edu)
 
 
 ## Summary
-The "Rights to Resource" data used in this analysis come from World Resource Institute's Land and Resource Rights Initiative and were published in November 2013.  In the data set, there are 5 sets of 11-question surveys detailing policies on water, trees, wildlife, minerals, and petroleum resources.  Questions in the survey pertain to citizen and community resource rights in sub-Saharan Africa.  In total, the project collected data on framework laws for 49 countries. Many of the nations studied enforce state-managed resource use. Resource Watch intended for this information to empower citizens and communities, investors, and policymakers to promote change. 
+The "Rights to Resource" data used in this analysis come from World Resource Institute's Land and Resource Rights Initiative and were published in November 2013.  In the data set, there are 5 sets of 11-question surveys detailing policies on water, trees, wildlife, minerals, and petroleum resources.  Questions in the survey pertain to individual and community resource rights in sub-Saharan Africa.  In total, the project collected data on framework laws for 49 countries. Many of the nations studied enforce state-managed resource use. Resource Watch intended for this information to empower citizens and communities, investors, and policymakers to promote change. 
 
 The purpose of this analysis is to further quantify the Rights to Resource data trends.  I compared community access across the 5 resources and presented a policy-based ranking of nations with all resources combined.  I also plotted these results on a map to facilitate interpretation.
 
